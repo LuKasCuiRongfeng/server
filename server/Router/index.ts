@@ -1,1 +1,1 @@
-export { fuckRouter } from './fuck'
+export { fuckRouter } from "./fuck";
