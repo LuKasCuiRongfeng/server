@@ -1,0 +1,1 @@
+export { fuckRouter } from './fuck'
