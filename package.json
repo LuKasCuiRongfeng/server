@@ -3,6 +3,12 @@
     "version": "1.0.0",
     "main": "index.js",
     "author": "cuirongfeng <cuirongfeng@intasect.com.cn>",
+    "description": "摸鱼一个全栈，嘿嘿嘿",
+    "keywords": ["javascript", "nodejs", "webpack", "full-stack"],
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:LuKasCuiRongfeng/server.git"
+    },
     "license": "MIT",
     "devDependencies": {
         "@babel/core": "^7.18.5",
