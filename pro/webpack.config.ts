@@ -39,6 +39,10 @@ const config: Configuration = {
                 use: ["style-loader", "css-loader"],
             },
             {
+                test: /\.less$/i,
+                use: ["style-loader", "css-loader", "less-loader"],
+            },
+            {
                 test: /\.(png|jpg|jpeg|gif|svg)$/i,
                 include: resolve(__dirname, "src/assets"),
                 type: "asset/resource",

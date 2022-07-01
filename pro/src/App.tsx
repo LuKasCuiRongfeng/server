@@ -1,25 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import Header from "./header";
 
 const App: React.FC<Record<string, unknown>> = () => {
-    const [src, setSrc] = useState("");
+    const navigate = useNavigate();
+    const location = useLocation();
+    useEffect(() => {
+        if (location.pathname === "/") {
+            navigate("/home", { replace: true });
+        }
+    }, []);
     return (
-        <div>
-            <img src={src} alt="fuck" />
-            <button
-                onClick={() => {
-                    fetch("http://localhost:12345/svg/condition_403.svg", {
-                        method: "get",
-                    })
-                        .then(res => res.blob())
-                        .then(res => {
-                            setSrc(URL.createObjectURL(res));
-                        })
-                        .catch(err => console.error(err));
-                }}
-            >
-                test
-            </button>
-        </div>
+        <>
+            <Header />
+            <Outlet />
+        </>
     );
 };
 

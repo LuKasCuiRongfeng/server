@@ -10,7 +10,7 @@ const webpackDevConfig = merge(config, {
         static: "./dist",
         historyApiFallback: true,
         proxy: {
-            "/": "http://localhost:2000",
+            "/api": "http://localhost:2000",
             secure: false,
         },
     },
