@@ -3,8 +3,10 @@
     "version": "1.0.0",
     "license": "MIT",
     "scripts": {
-        "start": "webpack serve -c webpack.config.dev.ts",
-        "build": "rimraf dist && webpack -c webpack.config.prod.ts"
+        "start": "npm run dev && ",
+        "dev": "webpack serve -c webpack.config.dev.ts",
+        "build:main": "rimraf dist/main && webpack -c webpack.config.main.ts && electon ./dist/main/main.js",
+        "build": "rimraf dist/render && webpack -c webpack.config.prod.ts"
     },
     "dependencies": {
         "@emotion/react": "^11.9.3",
