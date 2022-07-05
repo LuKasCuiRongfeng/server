@@ -11,7 +11,7 @@ interface Configuration extends WebpackConfiguration {
 }
 
 const config: Configuration = {
-    entry: "./src/main.tsx",
+    entry: "./src/render/main.tsx",
     output: {
         path: resolve(__dirname, "dist/render"),
         filename: "js/[name].[contenthash].js",
@@ -29,7 +29,7 @@ const config: Configuration = {
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
         alias: {
-            "@": resolve(__dirname, "src/"),
+            "@": resolve(__dirname, "src/render"),
         },
     },
     module: {
@@ -66,7 +66,7 @@ const config: Configuration = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: "index.html",
+            template: "./src/render/index.html",
             minify: {
                 removeComments: true,
                 collapseWhitespace: true,

@@ -28,7 +28,7 @@ const config: Configuration = {
     resolve: {
         extensions: [".ts", ".js"],
         alias: {
-            main: resolve(__dirname, "src/main"),
+            "@main": resolve(__dirname, "src/main"),
         },
     },
     module: {
