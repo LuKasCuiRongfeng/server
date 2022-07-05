@@ -13,7 +13,7 @@ interface Configuration extends WebpackConfiguration {
 const config: Configuration = {
     entry: "./src/main.tsx",
     output: {
-        path: resolve(__dirname, "dist"),
+        path: resolve(__dirname, "dist/render"),
         filename: "js/[name].[contenthash].js",
         clean: true,
         pathinfo: false,

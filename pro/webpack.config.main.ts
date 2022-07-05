@@ -2,14 +2,18 @@ import { resolve } from "path";
 import { ProgressPlugin, Configuration } from "webpack";
 
 const config: Configuration = {
-    entry: "./src/main/index.ts",
+    mode: "production",
+    entry: {
+        main: "./src/main/index.ts",
+    },
     output: {
         path: resolve(__dirname, "dist/main"),
-        filename: "main.js",
+        filename: "[name].js",
         clean: true,
         pathinfo: false,
         publicPath: "/",
     },
+    devtool: "source-map",
     optimization: {
         moduleIds: "deterministic",
         runtimeChunk: "single",
@@ -17,7 +21,10 @@ const config: Configuration = {
             chunks: "all",
         },
     },
-    externals: ["electron"],
+    target: "node",
+    externals: {
+        electron: "commonjs2 electron",
+    },
     resolve: {
         extensions: [".ts", ".js"],
         alias: {

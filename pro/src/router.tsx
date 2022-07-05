@@ -1,6 +1,6 @@
 import App from "@/App";
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
 import { headerRoutes } from "./header/config";
 import Home from "./Home";
 
@@ -17,7 +17,6 @@ const DefaultElement = () => <h1>这里什么也没有</h1>;
 export const routes: CustomRoute[] = [
     {
         path: "/",
-        redirect: "/home",
         element: <App />,
         children: [
             { path: "home", title: "首页", element: <Home /> },
@@ -46,9 +45,9 @@ const generateRoutes = (routes: CustomRoute[]) => {
 };
 const Router: React.FC<Record<string, any>> = () => {
     return (
-        <BrowserRouter>
+        <HashRouter>
             <Routes>{generateRoutes(routes)}</Routes>
-        </BrowserRouter>
+        </HashRouter>
     );
 };
 

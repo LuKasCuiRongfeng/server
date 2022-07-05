@@ -5,7 +5,7 @@ const webpackDevConfig = merge(config, {
     mode: "development",
     devtool: "eval-cheap-module-source-map",
     devServer: {
-        open: true,
+        open: false,
         port: 12345,
         static: "./dist",
         historyApiFallback: true,
