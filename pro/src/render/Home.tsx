@@ -1,7 +1,12 @@
+import { Button } from "@mui/material";
 import React from "react";
 
 const Home: React.FC<Record<string, any>> = () => {
-    return <div>这里是首页</div>;
+    return (
+        <div>
+            <Button variant="contained">点击获取最热</Button>
+        </div>
+    );
 };
 
 export default Home;
