@@ -1,6 +1,6 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from "electron";
 import type App from "../app";
-import { merge } from "lodash";
+import { merge } from "lodash-es";
 
 /** 窗口间传递的数据类型 */
 export interface WinData {
@@ -55,7 +55,7 @@ export class WindowManager {
         // 窗口不存在，创建新的窗口
         win = new BrowserWindow(
             merge(
-                defaultBrowserWindowConstructorOptions,
+                { ...defaultBrowserWindowConstructorOptions },
                 browserWindowConstructorOptions
             )
         );

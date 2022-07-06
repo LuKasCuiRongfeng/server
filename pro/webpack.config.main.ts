@@ -35,7 +35,7 @@ const config: Configuration = {
     module: {
         rules: [
             {
-                test: /\.(ts|js)?$/i,
+                test: /\.(ts|js)$/i,
                 include: resolve(__dirname, "src/main"),
                 use: [
                     {
