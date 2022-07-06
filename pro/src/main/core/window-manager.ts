@@ -15,7 +15,7 @@ export interface WinConstructorOptions {
     data?: WinData;
     /** 是否禁用默认的关闭行为，default false */
     preventDefaultClose?: boolean;
-    /** 是否打开开发者工具，default true */
+    /** 是否打开开发者工具，default false */
     openDevTools?: boolean;
     /** electron 窗口创建选项 */
     browserWindowConstructorOptions?: BrowserWindowConstructorOptions;
@@ -23,7 +23,7 @@ export interface WinConstructorOptions {
 
 const defaultBrowserWindowConstructorOptions: BrowserWindowConstructorOptions =
     {
-        width: 700,
+        width: 900,
         height: 700,
         show: false,
         webPreferences: {},
@@ -41,7 +41,7 @@ export class WindowManager {
         const {
             key,
             data,
-            openDevTools = true,
+            openDevTools = false,
             preventDefaultClose = false,
             browserWindowConstructorOptions,
         } = winConstructorOptions;

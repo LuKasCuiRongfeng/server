@@ -20,7 +20,12 @@ const Header: React.FC<Record<string, any>> = () => {
     };
 
     const openLogin = () => {
-        window.ipcRenderer.send("CREATE_WIN", { key: "login" });
+        window.ipcRenderer.send("CREATE_WIN", {
+            key: "login",
+            browserWindowConstructorOptions: {
+                frame: false,
+            },
+        });
     };
 
     return (
