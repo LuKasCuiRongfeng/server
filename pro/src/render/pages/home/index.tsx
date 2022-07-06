@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Header from "./header";
 
-const App: React.FC<Record<string, unknown>> = () => {
+const Home: React.FC<Record<string, unknown>> = () => {
     const navigate = useNavigate();
     const location = useLocation();
     useEffect(() => {
@@ -18,4 +18,4 @@ const App: React.FC<Record<string, unknown>> = () => {
     );
 };
 
-export default App;
+export default Home;

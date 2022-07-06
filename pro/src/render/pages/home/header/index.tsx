@@ -2,12 +2,12 @@ import React, { useState, useRef } from "react";
 import { classnames } from "@/utils/utils";
 import "./style.less";
 import { Button, Menu, MenuItem } from "@mui/material";
-import { headerRoutes } from "./config";
 import { useLocation, useNavigate } from "react-router-dom";
+import { homeRoute } from "../route";
 
 const Header: React.FC<Record<string, any>> = () => {
     const [status, setStatus] = useState<(HTMLElement | null)[]>(
-        headerRoutes.map(d => null)
+        homeRoute.children.map(d => null)
     );
 
     const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Header: React.FC<Record<string, any>> = () => {
                 logo
             </div>
             <div className={classnames("header-sections")}>
-                {headerRoutes.map((d, index) => (
+                {homeRoute.children.map((d, index) => (
                     <div
                         className={classnames("header-sections-section")}
                         key={d.title}

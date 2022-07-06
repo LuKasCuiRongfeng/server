@@ -2,7 +2,8 @@ import { Button } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { getRecommendListApi, RecommendList } from "./api";
 
-const Home: React.FC<Record<string, any>> = () => {
+/** 推荐 */
+const Recommend: React.FC<Record<string, any>> = () => {
     const [list, setList] = useState<RecommendList[]>([]);
 
     useEffect(() => {
@@ -26,4 +27,4 @@ const Home: React.FC<Record<string, any>> = () => {
     );
 };
 
-export default Home;
+export default Recommend;
