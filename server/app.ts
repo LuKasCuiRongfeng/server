@@ -1,12 +1,12 @@
 import express from "express";
-import { fuckRouter, recomandRouter } from "./Router";
+import { fuckRouter, recommendRouter } from "./Router";
 
 const app = express();
 
 app.use(express.static("public"));
 
 app.use("/fuck", fuckRouter);
-app.use("/recomand", recomandRouter);
+app.use("/recommend", recommendRouter);
 
 app.listen(2000, () => {
     console.log("success");
