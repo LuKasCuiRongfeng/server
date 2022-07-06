@@ -4,30 +4,7 @@ import { Classic, Jazz, Music, Pop } from "@/pages/home/views/music";
 import { PE, Basketball, Footabll, Tennis } from "@/pages/home/views/pe";
 import Home from ".";
 import Recommend from "./Recommend";
-import { Route } from "react-router-dom";
-
-export interface CustomRoute {
-    title?: string;
-    path: string;
-    redirect?: string;
-    element?: JSX.Element;
-    children?: CustomRoute[];
-}
-
-const DefaultElement = () => <h1>这里什么也没有</h1>;
-
-/** 生产单个嵌套的路由 */
-export const generateSingleNestRoute = (route: CustomRoute) => {
-    return (
-        <Route
-            key={route.path}
-            path={route.path}
-            element={route.element || <DefaultElement />}
-        >
-            {route.children?.map(d => generateSingleNestRoute(d))}
-        </Route>
-    );
-};
+import { CustomRoute } from "@/router";
 
 // 每个页面维护自己的routes
 export const homeRoute: CustomRoute = {
@@ -84,7 +61,3 @@ export const homeRoute: CustomRoute = {
         },
     ],
 };
-
-const HomeRoute = generateSingleNestRoute(homeRoute);
-
-export default HomeRoute;

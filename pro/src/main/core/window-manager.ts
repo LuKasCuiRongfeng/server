@@ -81,6 +81,10 @@ export class WindowManager {
             }
         });
 
+        win.on("closed", () => {
+            this.wins.delete(key);
+        });
+
         return win;
     }
 

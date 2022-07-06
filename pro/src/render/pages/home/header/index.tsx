@@ -18,6 +18,11 @@ const Header: React.FC<Record<string, any>> = () => {
         _status[index] = el || null;
         setStatus(_status);
     };
+
+    const openLogin = () => {
+        window.ipcRenderer.send("CREATE_WIN", { key: "login" });
+    };
+
     return (
         <div className={classnames("header")}>
             <div
@@ -56,6 +61,7 @@ const Header: React.FC<Record<string, any>> = () => {
                     </div>
                 ))}
             </div>
+            <Button onClick={() => openLogin()}>登录</Button>
         </div>
     );
 };

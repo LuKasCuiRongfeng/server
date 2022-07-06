@@ -1,13 +1,13 @@
 import { app, BrowserWindow } from "electron";
 import App from "./app";
-import { createMainWin } from "./windows/main";
+import { createHomeWin } from "./windows/home";
 
 app.whenReady().then(async () => {
     const _app = new App();
-    await createMainWin(_app);
+    await createHomeWin(_app);
     app.on("activate", async () => {
         if (BrowserWindow.getAllWindows().length === 0) {
-            await createMainWin(_app);
+            await createHomeWin(_app);
         }
     });
 

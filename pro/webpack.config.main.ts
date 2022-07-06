@@ -1,5 +1,6 @@
 import { resolve } from "path";
 import { ProgressPlugin, Configuration } from "webpack";
+import CopyWebpackPlugin from "copy-webpack-plugin";
 
 const config: Configuration = {
     mode: "production",
@@ -47,7 +48,12 @@ const config: Configuration = {
             },
         ],
     },
-    plugins: [new ProgressPlugin()],
+    plugins: [
+        new ProgressPlugin(),
+        new CopyWebpackPlugin({
+            patterns: [{ from: "src/main/preload", to: "preload" }],
+        }),
+    ],
 };
 
 export default config;
