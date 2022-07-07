@@ -1,4 +1,4 @@
-import { request } from "../../utils/service";
+import { request } from "../../core/service";
 
 export interface CommonResponse {
     status: "success" | "failed";

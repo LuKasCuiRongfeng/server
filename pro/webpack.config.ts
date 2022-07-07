@@ -30,6 +30,7 @@ const config: Configuration = {
         extensions: [".tsx", ".ts", ".js"],
         alias: {
             "@": resolve(__dirname, "src/render"),
+            "@main": resolve(__dirname, "src/main"),
         },
     },
     module: {

@@ -1,12 +1,15 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from "electron";
 import type App from "../app";
 import { merge } from "lodash-es";
+import { IpcChannel } from "@main/ipc";
 
 /** 窗口间传递的数据类型 */
 export interface WinData {
     type: string;
     payload: any;
 }
+
+export type CrossWinData = { key: string; data: WinData };
 
 export interface WinConstructorOptions {
     /** 窗口的唯一标识 */
@@ -50,6 +53,9 @@ export class WindowManager {
         if (win != null) {
             // 窗口已经存在，直接聚焦
             win.focus();
+            if (data != null) {
+                win.webContents.send(IpcChannel.SEND_MSG, data);
+            }
             return win;
         }
         // 窗口不存在，创建新的窗口
@@ -70,7 +76,7 @@ export class WindowManager {
                 win.webContents.openDevTools();
             }
             if (data != null) {
-                this.sendMsg(key, data);
+                win.webContents.send(IpcChannel.SEND_MSG, data);
             }
         });
 
@@ -95,7 +101,7 @@ export class WindowManager {
             console.warn("窗口不存在");
             return;
         }
-        win.webContents.send("", data);
+        win.webContents.send(IpcChannel.SEND_MSG, data);
     }
 
     /** 获取焦点窗口 */

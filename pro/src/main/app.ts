@@ -1,6 +1,10 @@
 import { ipcMain } from "electron";
 import { URL } from "./core/url";
-import { WindowManager } from "./core/window-manager";
+import {
+    CrossWinData,
+    WinConstructorOptions,
+    WindowManager,
+} from "./core/window-manager";
 import { IpcChannel } from "./ipc";
 
 export default class App {
@@ -20,11 +24,12 @@ export default class App {
 
     /** 注册所有的ipc */
     private registerIpcEvent() {
-        ipcMain.on(IpcChannel.CREATE_WIN, (e, args) => {
-            this.windowManager.createWin({
-                key: args.key,
-                data: args.data,
-            });
+        ipcMain.on(IpcChannel.CREATE_WIN, (e, args: WinConstructorOptions) => {
+            this.windowManager.createWin(args);
+        });
+
+        ipcMain.on(IpcChannel.SEND_MSG, (e, args: CrossWinData) => {
+            this.windowManager.sendMsg(args.key, args.data);
         });
     }
 }

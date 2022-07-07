@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { classnames } from "@/utils/utils";
+import { classnames } from "@/core/utils";
 import "./style.less";
 import { Button, Menu, MenuItem } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -24,6 +24,10 @@ const Header: React.FC<Record<string, any>> = () => {
             key: "login",
             browserWindowConstructorOptions: {
                 frame: false,
+            },
+            data: {
+                type: "login/increment",
+                payload: 12,
             },
         });
     };

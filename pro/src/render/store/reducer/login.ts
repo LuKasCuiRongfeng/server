@@ -8,8 +8,8 @@ const initialState: State = {
     value: 12,
 };
 
-export const home = createSlice({
-    name: "home",
+export const login = createSlice({
+    name: "login",
     initialState,
     reducers: {
         increment: (state, action: PayloadAction<number>) => {
@@ -18,4 +18,4 @@ export const home = createSlice({
     },
 });
 
-export default home.reducer;
+export default login.reducer;
