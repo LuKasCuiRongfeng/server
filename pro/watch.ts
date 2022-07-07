@@ -1,7 +1,7 @@
 import webpack from "webpack";
 import config from "./webpack.config.main";
 import waitOn from "wait-on";
-import { ChildProcess, spawn } from "child_process";
+import { ChildProcess, spawn, exec } from "child_process";
 import minimist from "minimist";
 import chalk from "chalk";
 // import ora from "ora";
@@ -34,22 +34,50 @@ compiler.watch(
             console.log(info.warnings);
         }
 
-        console.log(chalk.cyan("main 编译完成, 等待render编译完成 ..."));
+        console.log(chalk.cyan("main 编译即将完成, 等待render编译完成 ...\n"));
 
         await waitOn({
-            resources: [`tcp:12345`],
+            resources: [`http://localhost:12345`],
         });
 
-        console.log(chalk.yellow("开始执行electron 命令"));
+        console.log(chalk.yellow("render 编译完成, 开始执行electron 命令\n"));
 
         if (childProcess != null) {
-            childProcess.kill();
+            console.log(chalk.blue(childProcess.pid));
+            process.kill(childProcess.pid, 9);
+            // spawn("powershell", ["kill", `${childProcess.pid}`])
+
+            exec("tasklist", (err, stdout, stderr) => {
+                stdout.split("\n").filter(line => {
+                    const msgs = line.trim().split(/\s+/);
+                    const name = msgs[0];
+                    const pid = msgs[1];
+                    if (name.indexOf("electron") > -1) {
+                        console.log(name, " ", pid);
+                        process.kill(+pid);
+                    }
+                });
+            });
         }
 
-        childProcess = spawn("electron", [
-            ".",
-            `${argv.debug ? "--inspect=5858" : ""}`,
-        ]);
+        childProcess = exec("electron .");
+
+        // if (process.platform === "win32") {
+        //     childProcess = spawn("powershell", [
+        //         "electron",
+        //         ".",
+        //         `${argv.debug ? "--inspect=5858" : ""}`,
+        //     ]);
+        // } else {
+        //     childProcess = spawn("electron", [
+        //         ".",
+        //         `${argv.debug ? "--inspect=5858" : ""}`,
+        //     ], { detached: true });
+        // }
+
+        // childProcess = exec("electron . --inspect=5858")
+
+        console.log(chalk.yellow(childProcess.pid));
 
         childProcess.stdout.on("data", data => {
             console.log(chalk.blueBright(data));
