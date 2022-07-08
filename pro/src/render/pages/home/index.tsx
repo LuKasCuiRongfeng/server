@@ -1,3 +1,4 @@
+import { ElectronWindow } from "@/components";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Header from "./header";
@@ -11,10 +12,10 @@ const Home: React.FC<Record<string, unknown>> = () => {
         }
     }, []);
     return (
-        <>
+        <ElectronWindow>
             <Header />
             <Outlet />
-        </>
+        </ElectronWindow>
     );
 };
 

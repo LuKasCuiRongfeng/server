@@ -23,7 +23,7 @@ const Header: React.FC<Record<string, any>> = () => {
         window.ipcRenderer.send("CREATE_WIN", {
             key: "login",
             browserWindowConstructorOptions: {
-                frame: false,
+                titleBarStyle: "hidden",
             },
             data: {
                 type: "login/increment",

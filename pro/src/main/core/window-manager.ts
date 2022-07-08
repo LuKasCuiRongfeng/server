@@ -29,6 +29,7 @@ const defaultBrowserWindowConstructorOptions: BrowserWindowConstructorOptions =
         width: 900,
         height: 700,
         show: false,
+        titleBarStyle: "hidden",
         webPreferences: {},
     };
 
