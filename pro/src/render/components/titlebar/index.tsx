@@ -1,5 +1,6 @@
 import { classnames } from "@/core/utils";
 import React from "react";
+import Control from "./control";
 import "./index.less";
 
 export type TitlebarProps = {
@@ -21,7 +22,9 @@ const Titlebar: React.FC<TitlebarProps> = props => {
                 frameless,
             })} ${className}`}
             style={{ height, ...style }}
-        ></div>
+        >
+            <Control />
+        </div>
     );
 };
 

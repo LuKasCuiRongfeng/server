@@ -5,7 +5,7 @@ import {
     WinConstructorOptions,
     WindowManager,
 } from "./core/window-manager";
-import { IpcChannel } from "./ipc";
+import { ControlId, IpcChannel } from "./ipc";
 
 export default class App {
     windowManager: WindowManager;
@@ -30,6 +30,23 @@ export default class App {
 
         ipcMain.on(IpcChannel.SEND_MSG, (e, args: CrossWinData) => {
             this.windowManager.sendMsg(args.key, args.data);
+        });
+
+        ipcMain.on(IpcChannel.WINDOW_CONTROL, (e, args: ControlId) => {
+            const win = this.windowManager.getFocusWin();
+            if (win == null) return;
+            switch (args) {
+                case ControlId.CLOSE:
+                    win.close();
+                    break;
+                case ControlId.MAX:
+                    win.isMaximized() ? win.unmaximize() : win.maximize();
+                    break;
+                case ControlId.MIN:
+                    win.minimize();
+                    break;
+                default:
+            }
         });
     }
 }

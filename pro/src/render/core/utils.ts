@@ -15,3 +15,16 @@ export function classnames(...args: (string | { [key: string]: any })[]) {
     });
     return classNames(..._args);
 }
+
+export type Theme = "light" | "dark";
+
+export function changeTheme(theme?: Theme) {
+    const _theme = theme || "light";
+    const vars = ["bg", "bg-hover", "titlebar", "text", "text-hover"];
+    vars.forEach(v => {
+        const val = getComputedStyle(document.body).getPropertyValue(
+            `--${_theme}-${v}`
+        );
+        document.body.style.setProperty(`--${v}`, val);
+    });
+}

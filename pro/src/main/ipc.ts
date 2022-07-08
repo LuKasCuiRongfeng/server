@@ -4,11 +4,20 @@ export enum IpcChannel {
     /** 特指跨窗口的消息 */
     SEND_MSG = "SEND_MSG",
     CREATE_WIN = "CREATE_WIN",
+    WINDOW_CONTROL = "WINDOW_CONTROL",
+}
+
+export enum ControlId {
+    CLOSE = 0,
+    MAX = 1,
+    MIN = -1,
 }
 
 export type IpcChannelType = keyof typeof IpcChannel;
 
+type PrimaryDataType = string | number | boolean | symbol;
+
 export type IpcDataType =
     | WinConstructorOptions // 创建窗口时
-    | string // 普通字符串数据
+    | PrimaryDataType // 普通字符串数据
     | CrossWinData; // 向另外一个窗口传递数据时
