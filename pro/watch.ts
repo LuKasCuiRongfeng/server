@@ -6,7 +6,10 @@ import minimist from "minimist";
 import chalk from "chalk";
 // import ora from "ora";
 
-let childProcess: ChildProcess;
+// 启动electron的shell子进程
+let subprocess: ChildProcess;
+// 查询所有进程id 的shell子进程
+let subprocessTasklist: ChildProcess;
 
 const compiler = webpack(config);
 
@@ -34,63 +37,72 @@ compiler.watch(
             console.log(info.warnings);
         }
 
-        console.log(chalk.cyan("main 编译即将完成, 等待render编译完成 ...\n"));
+        console.log(
+            chalk.cyan(
+                "[√] main is going to be compiled successfully, waiting for render to be compiled completely ...\n"
+            )
+        );
 
         await waitOn({
             resources: [`http://localhost:12345`],
         });
 
-        console.log(chalk.yellow("render 编译完成, 开始执行electron 命令\n"));
+        console.log(
+            chalk.yellow(
+                "[√] render compiled successfully, ready to run electron ...\n"
+            )
+        );
 
-        if (childProcess != null) {
-            console.log(chalk.blue(childProcess.pid));
-            process.kill(childProcess.pid, 9);
-            // spawn("powershell", ["kill", `${childProcess.pid}`])
+        // 注意这里只是杀死了衍生的shell进程，根本没杀死启动的electron进程
+        subprocess && process.kill(subprocess.pid, "SIGKILL");
 
-            exec("tasklist", (err, stdout, stderr) => {
-                stdout.split("\n").filter(line => {
-                    const msgs = line.trim().split(/\s+/);
-                    const name = msgs[0];
-                    const pid = msgs[1];
-                    if (name.indexOf("electron") > -1) {
-                        console.log(name, " ", pid);
-                        process.kill(+pid);
-                    }
-                });
+        subprocessTasklist && subprocessTasklist.kill(9);
+
+        // windows 下遍历寻找electron进程并杀死
+        subprocessTasklist = exec("tasklist", (err, stdout, stderr) => {
+            stdout.split("\n").forEach(line => {
+                const msgs = line.trim().split(/\s+/);
+                const pname = msgs[0];
+                const pid = msgs[1];
+                if (pname.indexOf("electron") > -1) {
+                    process.kill(+pid);
+                }
             });
+        });
+
+        // windows 下的 cmd 不能执行electron，改用 powershell执行
+        if (process.platform === "win32") {
+            subprocess = spawn("powershell", [
+                "electron",
+                ".",
+                `${argv.debug ? "--inspect=5858" : ""}`,
+            ]);
+        } else {
+            subprocess = spawn("electron", [
+                ".",
+                `${argv.debug ? "--inspect=5858" : ""}`,
+            ]);
         }
 
-        childProcess = exec("electron .");
-
-        // if (process.platform === "win32") {
-        //     childProcess = spawn("powershell", [
-        //         "electron",
-        //         ".",
-        //         `${argv.debug ? "--inspect=5858" : ""}`,
-        //     ]);
-        // } else {
-        //     childProcess = spawn("electron", [
-        //         ".",
-        //         `${argv.debug ? "--inspect=5858" : ""}`,
-        //     ], { detached: true });
-        // }
-
-        // childProcess = exec("electron . --inspect=5858")
-
-        console.log(chalk.yellow(childProcess.pid));
-
-        childProcess.stdout.on("data", data => {
+        subprocess.stdout.on("data", data => {
             console.log(chalk.blueBright(data));
         });
-        childProcess.stderr.on("data", data => {
+        subprocess.stderr.on("data", data => {
             console.error(chalk.red(data));
         });
-        childProcess.on("close", code => {
-            console.log(chalk.yellow(`进程退出, 退出码: ${code}`));
+        subprocess.on("close", code => {
+            console.log(
+                chalk.yellow(
+                    `[?] supprocess has exited, and exit code is : ${code}`
+                )
+            );
         });
-        childProcess.on("error", err => {
-            console.error(chalk.red("Failed to start subprocess.", err));
+        subprocess.on("error", err => {
+            console.error(chalk.red("[X] failed to start subprocess.", err));
         });
+
+        console.log("subprocessTasklist: ", subprocessTasklist?.pid);
+        console.log("subprocess: ", subprocess?.pid);
 
         // spinner.stop();
     }

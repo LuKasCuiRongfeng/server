@@ -54,6 +54,17 @@ const config: Configuration = {
             patterns: [{ from: "src/main/preload", to: "preload" }],
         }),
     ],
+    // 启用cache加速打包
+    cache: {
+        type: "filesystem",
+        allowCollectingMemory: true,
+        buildDependencies: {
+            config: [__filename],
+        },
+        compression: "gzip",
+        maxAge: 1000 * 60 * 60 * 24,
+        // memoryCacheUnaffected: true,
+    },
 };
 
 export default config;
