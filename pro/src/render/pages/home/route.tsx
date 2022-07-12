@@ -1,4 +1,5 @@
 import React from "react";
+import { HomeOutlined } from "@ant-design/icons";
 import { CSGO, Dota, EPE, LOL } from "@/pages/home/views/epe";
 import { Classic, Jazz, Music, Pop } from "@/pages/home/views/music";
 import { PE, Basketball, Footabll, Tennis } from "@/pages/home/views/pe";
@@ -10,54 +11,54 @@ import { CustomRoute } from "@/router";
 export const homeRoute: CustomRoute = {
     path: "/",
     element: <Home />,
+    icon: <HomeOutlined />,
     children: [
         {
+            path: "home",
+            label: "主页",
+            element: <Recommend />,
+        },
+        {
             path: "pe",
-            title: "体育",
+            label: "体育",
             element: <PE />,
             children: [
                 {
                     path: "football",
-                    title: "足球",
+                    label: "足球",
                     element: <Footabll />,
-                    children: [{ path: "england", title: "英超" }],
                 },
                 {
                     path: "basketball",
-                    title: "篮球",
+                    label: "篮球",
                     element: <Basketball />,
                 },
-                { path: "tennis", title: "网球", element: <Tennis /> },
+                { path: "tennis", label: "网球", element: <Tennis /> },
             ],
         },
         {
             path: "epe",
-            title: "电子竞技",
+            label: "电子竞技",
             element: <EPE />,
             children: [
-                { path: "lol", title: "英雄联盟", element: <LOL /> },
-                { path: "csgo", title: "CS:GO", element: <CSGO /> },
-                { path: "dota", title: "DOTA", element: <Dota /> },
+                { path: "lol", label: "英雄联盟", element: <LOL /> },
+                { path: "csgo", label: "CS:GO", element: <CSGO /> },
+                { path: "dota", label: "DOTA", element: <Dota /> },
             ],
         },
         {
             path: "music",
-            title: "音乐",
+            label: "音乐",
             element: <Music />,
             children: [
-                { path: "pop", title: "流行音乐", element: <Pop /> },
+                { path: "pop", label: "流行音乐", element: <Pop /> },
                 {
                     path: "classic",
-                    title: "古典音乐",
+                    label: "古典音乐",
                     element: <Classic />,
                 },
-                { path: "jazz", title: "爵士音乐", element: <Jazz /> },
+                { path: "jazz", label: "爵士音乐", element: <Jazz /> },
             ],
-        },
-        {
-            path: "home",
-            title: "主页",
-            element: <Recommend />,
         },
     ],
 };

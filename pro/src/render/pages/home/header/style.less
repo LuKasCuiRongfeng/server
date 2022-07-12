@@ -1,6 +1,7 @@
 @import url(/src/render/theme.less);
 
 .@{class-prefix}header {
+    padding: 0 20px;
     height: 100px;
     background: var(--bg);
     color: var(--text);
@@ -9,8 +10,16 @@
     align-items: center;
     &-logo {
         cursor: pointer;
+        margin-right: auto;
     }
     &-sections {
         display: flex;
+        &-section {
+            padding: 0 10px;
+        }
+    }
+    &-login {
+        margin-left: auto;
+        cursor: pointer;
     }
 }

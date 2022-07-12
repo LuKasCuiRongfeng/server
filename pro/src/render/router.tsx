@@ -4,12 +4,35 @@ import { homeRoute } from "./pages/home/route";
 import { LoginRoute } from "./pages/login/route";
 
 export interface CustomRoute {
-    title?: string;
+    label?: string;
     path: string;
     redirect?: string;
     element?: JSX.Element;
     children?: CustomRoute[];
+    icon?: React.ReactNode;
 }
+
+type ItemType = {
+    label?: string;
+    key: string;
+    icon?: React.ReactNode;
+    children?: ItemType[];
+};
+
+/** 把routes结构转为antd menu组件所需要的结构 */
+export const generateAntdMenuItems = (routes: CustomRoute[]) => {
+    return routes.map(d => {
+        const obj: ItemType = {
+            key: d.path,
+            label: d.label,
+            icon: d.icon,
+        };
+        if (d.children?.length > 0) {
+            obj.children = generateAntdMenuItems(d.children);
+        }
+        return obj;
+    });
+};
 
 const DefaultElement = () => <h1>这里什么也没有</h1>;
 

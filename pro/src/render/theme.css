@@ -3,14 +3,14 @@
     --light-bg: var(--gray-1);
     --light-bg-hover: var(--gray-3);
 
-    --light-titlebar: var(--gray-1);
+    --light-titlebar: var(--gray-6);
 
     --light-text: var(--gray-13);
     --light-text-hover: var(--daybreak-blue);
 
     /** dark */
-    --dark-bg: var(--gray-13);
-    --dark-bg-hover: var(--gray-6);
+    --dark-bg: var(--gray-10);
+    --dark-bg-hover: var(--gray-13);
 
     --dark-titlebar: var(--gray-13);
 
