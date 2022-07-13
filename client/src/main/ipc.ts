@@ -5,6 +5,7 @@ export enum IpcChannel {
     SEND_MSG = "SEND_MSG",
     CREATE_WIN = "CREATE_WIN",
     WINDOW_CONTROL = "WINDOW_CONTROL",
+    ELECTRON_STORE = "ELECTRON_STORE",
 }
 
 export enum ControlId {
@@ -15,7 +16,7 @@ export enum ControlId {
 
 export type IpcChannelType = keyof typeof IpcChannel;
 
-type PrimaryDataType = string | number | boolean | symbol;
+type PrimaryDataType = string | number | boolean | symbol | Record<string, any>;
 
 export type IpcDataType =
     | WinConstructorOptions // 创建窗口时

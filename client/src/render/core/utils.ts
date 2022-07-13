@@ -18,7 +18,7 @@ export function classnames(...args: (string | { [key: string]: any })[]) {
 
 export type Theme = "light" | "dark";
 
-export function changeTheme(theme?: Theme) {
+export async function changeTheme(theme?: Theme) {
     const _theme = theme || "light";
     const vars = ["bg", "bg-hover", "titlebar", "text", "text-hover"];
     vars.forEach(v => {
@@ -27,4 +27,10 @@ export function changeTheme(theme?: Theme) {
         );
         document.body.style.setProperty(`--${v}`, val);
     });
+    // 保存到本地
+    return window.ipcRenderer.invoke("ELECTRON_STORE", { theme: _theme });
+}
+
+export async function getTheme(): Promise<Theme> {
+    return window.ipcRenderer.invoke("ELECTRON_STORE", "theme");
 }

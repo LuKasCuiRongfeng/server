@@ -1,4 +1,5 @@
 import { ipcMain } from "electron";
+import Store from "electron-store";
 import { URL } from "./core/url";
 import {
     CrossWinData,
@@ -10,6 +11,7 @@ import { ControlId, IpcChannel } from "./ipc";
 export default class App {
     windowManager: WindowManager;
     URL: URL;
+    store: Store;
     constructor() {
         this.init();
     }
@@ -17,6 +19,8 @@ export default class App {
     private async init() {
         this.windowManager = new WindowManager(this);
         this.URL = new URL(this);
+        this.store = new Store();
+        this.store.set("theme", "dark");
 
         // 务必在最后注册
         this.registerIpcEvent();
@@ -47,6 +51,18 @@ export default class App {
                     break;
                 default:
             }
+        });
+
+        ipcMain.handle(IpcChannel.ELECTRON_STORE, (e, args) => {
+            if (typeof args === "string") {
+                // get
+                return this.store.get(args);
+            } else if (typeof args === "object") {
+                // set
+                this.store.set(args);
+                return true;
+            }
+            return;
         });
     }
 }
