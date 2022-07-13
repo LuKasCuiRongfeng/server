@@ -1,1 +1,1 @@
-export const CLASS_PREFIX = "crf-pro-";
+export const CLASS_PREFIX = "crf-client-";

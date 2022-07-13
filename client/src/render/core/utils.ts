@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { CLASS_PREFIX } from "./const";
 
-/** 返回带有前缀 `crf-pro-` 的 classname */
+/** 返回带有前缀 `crf-client-` 的 classname */
 export function classnames(...args: (string | { [key: string]: any })[]) {
     const _args = args.map(d => {
         if (typeof d === "string") {
