@@ -1,11 +1,16 @@
 import express from "express";
+import { App } from "../app";
 
-export const recommendRouter = express.Router();
+export function router(app: App) {
+    const _router = express.Router();
 
-recommendRouter.get("/getrecommendlist", (req, res, next) => {
-    res.send({
-        status: "success",
-        error: "",
-        data: [{ content: "燃爆英超", degree: 5 }],
+    _router.get("/list", (req, res) => {
+        res.send({
+            status: "success",
+            error: "",
+            data: [{ content: "燃爆英超", degree: 5 }],
+        });
     });
-});
+
+    app.server.use("/recommend", _router);
+}

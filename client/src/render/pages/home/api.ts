@@ -12,7 +12,7 @@ export interface RecommendList {
 
 export async function getRecommendListApi() {
     const res = await request<CommonResponse & { data: RecommendList[] }>({
-        url: "/recommend/getrecommendlist",
+        url: "/recommend/list",
     });
     return res;
 }

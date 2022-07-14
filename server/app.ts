@@ -1,14 +1,25 @@
-import express from "express";
-import { fuckRouter, recommendRouter, bigFile } from "./Router";
+import express, { Express } from "express";
+import { MongoDb } from "./mongodb";
+import { Router } from "./Router";
 
-const app = express();
+export class App {
+    server: Express;
+    mongoDb: MongoDb;
+    router: Router;
 
-app.use(express.static("public"));
+    constructor(port: number) {
+        this.server = express();
+        this.server.use(express.json());
+        this.server.use(express.static("public"));
 
-app.use("/fuck", fuckRouter);
-app.use("/recommend", recommendRouter);
-app.use("/bigfile", bigFile);
+        this.mongoDb = new MongoDb();
 
-app.listen(2000, () => {
-    console.log("success");
-});
+        this.router = new Router(this);
+
+        this.server.listen(port, () => {
+            console.log(`Server listening port ${port}`);
+        });
+    }
+}
+
+new App(2000);

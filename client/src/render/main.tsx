@@ -8,6 +8,7 @@ import "./app.css";
 import { registerIpcEvent } from "./core/ipcEvent";
 import Router from "./router";
 import store from "./store";
+import { changeTheme } from "./core/utils";
 
 createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
@@ -18,3 +19,4 @@ createRoot(document.getElementById("root")!).render(
 );
 
 registerIpcEvent();
+changeTheme("dark");
