@@ -8,10 +8,10 @@ const config: Configuration = {
         output: "release/${productName} ${version}",
     },
     files: ["dist/**"],
-    electronDownload: {
-        version: "19.0.7",
-        cache: "./electron-cache",
-    },
+    // electronDownload: {
+    //     version: "19.0.7",
+    //     cache: "./electron-cache",
+    // },
     mac: {
         artifactName: "${productName} ${version}.${ext}",
         target: ["dmg"],

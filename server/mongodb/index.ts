@@ -6,7 +6,11 @@ const uri =
 export class MongoDb {
     private client: MongoClient;
     constructor() {
-        this.client = new MongoClient(uri);
+        try {
+            this.client = new MongoClient(uri);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     /** 连接数据库 */

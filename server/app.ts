@@ -10,6 +10,7 @@ export class App {
     constructor(port: number) {
         this.server = express();
         this.server.use(express.json());
+        this.server.use(express.urlencoded());
         this.server.use(express.static("public"));
 
         this.mongoDb = new MongoDb();
