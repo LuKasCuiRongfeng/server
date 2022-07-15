@@ -7,17 +7,18 @@ import { homeRoute } from "../route";
 import { generateAntdMenuItems } from "@/router";
 import { useAppSelector } from "@/store/hooks";
 import UserSet from "./user";
+import Lang from "./lang";
+import { useTranslation } from "react-i18next";
 
 const Header: React.FC<Record<string, any>> = () => {
     const navigate = useNavigate();
 
+    const { t } = useTranslation();
+
     return (
         <div className={classnames("header")}>
-            <div
-                onClick={() => navigate("/home")}
-                className={classnames("header-logo")}
-            >
-                logo
+            <div className={classnames("header-logo")}>
+                <Lang />
             </div>
             <div className={classnames("header-sections")}>
                 {homeRoute.children.map(d => (
@@ -38,14 +39,14 @@ const Header: React.FC<Record<string, any>> = () => {
                                     />
                                 }
                             >
-                                <div>{d.label}</div>
+                                <div>{t(d.label)}</div>
                             </Dropdown>
                         ) : (
                             <div
                                 onClick={() => navigate("/home")}
                                 className={classnames("header-logo")}
                             >
-                                {d.label}
+                                {t(d.label)}
                             </div>
                         )}
                     </div>

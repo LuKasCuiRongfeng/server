@@ -9,6 +9,7 @@ import { registerIpcEvent } from "./core/ipcEvent";
 import Router from "./router";
 import store from "./store";
 import { changeTheme } from "./core/utils";
+import "./locales";
 
 createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
