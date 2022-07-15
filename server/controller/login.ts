@@ -13,8 +13,8 @@ export const login_login: MiddleWare = async (req, res) => {
             res.send({
                 status: "success",
                 error: "",
-                // 登录成功返回sessionID
-                data: user.sessionId,
+                // 登录成功返回sessionID name
+                data: { sessionId: user.sessionId, name: user.name },
             });
         } else {
             res.send({

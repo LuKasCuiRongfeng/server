@@ -11,7 +11,6 @@ const Login_login: React.FC<Record<string, any>> = () => {
 
     const login = async () => {
         const values = await form.validateFields();
-        console.log(values);
         const res = await userLogin(values);
         const {
             data: { status, data, error },

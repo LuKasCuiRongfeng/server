@@ -15,7 +15,7 @@ export const homeRoute: CustomRoute = {
     children: [
         {
             path: "",
-            label: "主页",
+            label: "首页推荐",
             element: <Recommend />,
         },
         {

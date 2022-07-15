@@ -1,19 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface State {
-    value: number;
+    userInfo: { sessionId?: string; name?: string };
 }
 
 const initialState: State = {
-    value: 12,
+    userInfo: {},
 };
 
 export const home = createSlice({
     name: "home",
     initialState,
     reducers: {
-        increment: (state, action: PayloadAction<number>) => {
-            state.value += action.payload;
+        setUserInfo: (state, action) => {
+            state.userInfo = action.payload;
         },
     },
 });

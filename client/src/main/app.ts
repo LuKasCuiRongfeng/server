@@ -72,14 +72,30 @@ export default class App {
         });
 
         ipcMain.on(IpcChannel.WINDOW_LOGIN, async (e, args) => {
+            if (args.exit === true) {
+                // 推出登录
+                this.store.delete("sessionId");
+                await createLoginWin(this);
+                this.windowManager.destroy("home");
+                return;
+            }
             // 把 sessionid 保存在本地，并更新过期时间
             this.store.set({
-                sessionId: args,
+                sessionId: args.sessionId,
+                name: args.name,
                 startDate: Date.now(),
             });
             // 登录成功，关闭login窗口，打开主窗口
             await createHomeWin(this);
             this.windowManager.destroy("login");
+        });
+
+        ipcMain.handle(IpcChannel.USER_INFO, () => {
+            const userInfo = {
+                name: this.store.get("name"),
+                sessionId: this.store.get("sessionId"),
+            };
+            return userInfo;
         });
     }
 }

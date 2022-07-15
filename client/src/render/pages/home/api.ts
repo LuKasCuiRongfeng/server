@@ -5,21 +5,10 @@ export interface CommonResponse {
     error: string;
 }
 
-export interface RecommendList {
-    content: string;
-    degree: number;
-}
-
-export async function getRecommendListApi() {
-    const res = await request<CommonResponse & { data: RecommendList[] }>({
-        url: "/recommend/list",
+export function getUserInfo(id: string) {
+    return request<CommonResponse & { data: { name: string } }>({
+        url: "/user/userinfo",
+        method: "post",
+        data: id,
     });
-    return res;
-}
-
-export async function getBigFile() {
-    const res = await request({
-        url: "/bigfile",
-    });
-    return res;
 }

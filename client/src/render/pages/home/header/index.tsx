@@ -5,23 +5,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Dropdown, Menu } from "antd";
 import { homeRoute } from "../route";
 import { generateAntdMenuItems } from "@/router";
+import { useAppSelector } from "@/store/hooks";
+import UserSet from "./user";
 
 const Header: React.FC<Record<string, any>> = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-
-    const openLogin = () => {
-        window.ipcRenderer.send("CREATE_WIN", {
-            key: "login",
-            browserWindowConstructorOptions: {
-                titleBarStyle: "hidden",
-            },
-            data: {
-                type: "login/increment",
-                payload: 12,
-            },
-        });
-    };
 
     return (
         <div className={classnames("header")}>
@@ -63,11 +51,8 @@ const Header: React.FC<Record<string, any>> = () => {
                     </div>
                 ))}
             </div>
-            <div
-                onClick={() => openLogin()}
-                className={classnames("header-login")}
-            >
-                login
+            <div className={classnames("header-login")}>
+                <UserSet />
             </div>
         </div>
     );
