@@ -1,14 +1,10 @@
-import { App } from "../app";
-import { router as router1 } from "./bigFile";
-import { router } from "./lol";
-import { router as router2 } from "./recommend";
+import { Express } from "express";
+import { router as lolRouter } from "./lol";
 import { router as LoginRouter } from "./login";
 
 export class Router {
-    constructor(app: App) {
-        router1(app);
-        router2(app);
-        router(app);
-        LoginRouter(app);
+    constructor(app: Express) {
+        app.use("/lol", lolRouter());
+        app.use("/user", LoginRouter());
     }
 }

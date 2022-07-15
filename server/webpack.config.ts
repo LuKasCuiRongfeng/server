@@ -20,9 +20,6 @@ const config: Configuration = {
     },
     resolve: {
         extensions: [".ts", ".js"],
-        alias: {
-            "@": resolve(__dirname, "src/"),
-        },
     },
     module: {
         rules: [
