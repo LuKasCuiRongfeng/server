@@ -1,11 +1,15 @@
 import { CrossWinData, WinConstructorOptions } from "./core/window-manager";
 
+// 过期时间设置为 12小时
+export const MAX_AGE = 1000 * 60 * 60 * 12;
+
 export enum IpcChannel {
     /** 特指跨窗口的消息 */
     SEND_MSG = "SEND_MSG",
     CREATE_WIN = "CREATE_WIN",
     WINDOW_CONTROL = "WINDOW_CONTROL",
     ELECTRON_STORE = "ELECTRON_STORE",
+    WINDOW_LOGIN = "WINDOW_LOGIN",
 }
 
 export enum ControlId {

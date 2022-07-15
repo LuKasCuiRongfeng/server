@@ -1,4 +1,3 @@
-import { Button } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { getRecommendListApi, RecommendList } from "./api";
 

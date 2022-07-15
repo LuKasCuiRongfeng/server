@@ -3,6 +3,8 @@ import { Request, Response, NextFunction } from "express";
 export type User = {
     name: string;
     password: string;
+    sessionId?: string;
+    start?: Date;
 };
 
 export type Hero = {

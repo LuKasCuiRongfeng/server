@@ -1,0 +1,24 @@
+@import url(/src/render/theme.less);
+
+body {
+    background: var(--lime-nature);
+}
+
+.@{class-prefix}login {
+    display: flex;
+
+    &-introduce {
+        flex: 0 0 300px;
+
+        background: url(./logo.svg) no-repeat center;
+    }
+
+    &-operation {
+        flex: 1 1 100%;
+        padding: 20px 40px;
+        &-title {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+    }
+}

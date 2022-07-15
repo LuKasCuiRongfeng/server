@@ -1,17 +1,12 @@
 import { app, BrowserWindow } from "electron";
 import App from "./app";
-import { createHomeWin } from "./windows/home";
-
-let win: BrowserWindow;
+import { createLoginWin } from "./windows/login";
 
 app.whenReady().then(async () => {
     const _app = new App();
-    win = await createHomeWin(_app);
-    win.focus();
     app.on("activate", async () => {
         if (BrowserWindow.getAllWindows().length === 0) {
-            win = await createHomeWin(_app);
-            win.focus();
+            await createLoginWin(_app);
         }
     });
 

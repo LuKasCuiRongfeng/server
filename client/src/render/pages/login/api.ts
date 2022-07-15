@@ -7,7 +7,7 @@ export type User = {
 };
 
 export function userLogin(user: User) {
-    return request<CommonResponse>({
+    return request<CommonResponse & { data: string }>({
         url: "/user/login",
         method: "post",
         data: user,

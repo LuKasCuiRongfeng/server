@@ -1,3 +1,4 @@
+import { createHmac } from "crypto";
 import { users } from "../model/FullStack";
 import { MiddleWare, User } from "../types";
 
@@ -12,6 +13,8 @@ export const login_login: MiddleWare = async (req, res) => {
             res.send({
                 status: "success",
                 error: "",
+                // 登录成功返回sessionID
+                data: user.sessionId,
             });
         } else {
             res.send({
@@ -32,7 +35,10 @@ export const login_register: MiddleWare = async (req, res) => {
         if (user) {
             res.send({ status: "failed", error: "用户已经存在" });
         } else {
-            const result = await users.insertOne(body);
+            const result = await users.insertOne({
+                ...body,
+                sessionId: createHmac("sha256", body.name).digest("hex"),
+            });
             res.send({
                 status: "success",
                 error: "",

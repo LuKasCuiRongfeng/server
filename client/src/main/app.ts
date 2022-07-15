@@ -7,6 +7,8 @@ import {
     WindowManager,
 } from "./core/window-manager";
 import { ControlId, IpcChannel } from "./ipc";
+import { createHomeWin } from "./windows/home";
+import { createLoginWin } from "./windows/login";
 
 export default class App {
     windowManager: WindowManager;
@@ -20,7 +22,11 @@ export default class App {
         this.windowManager = new WindowManager(this);
         this.URL = new URL(this);
         this.store = new Store();
+
+        // 默认 dark 主题
         this.store.set("theme", "dark");
+
+        await createLoginWin(this);
 
         // 务必在最后注册
         this.registerIpcEvent();
@@ -63,6 +69,17 @@ export default class App {
                 return true;
             }
             return;
+        });
+
+        ipcMain.on(IpcChannel.WINDOW_LOGIN, async (e, args) => {
+            // 把 sessionid 保存在本地，并更新过期时间
+            this.store.set({
+                sessionId: args,
+                startDate: Date.now(),
+            });
+            // 登录成功，关闭login窗口，打开主窗口
+            await createHomeWin(this);
+            this.windowManager.destroy("login");
         });
     }
 }

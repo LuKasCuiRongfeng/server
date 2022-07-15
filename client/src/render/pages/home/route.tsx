@@ -9,12 +9,12 @@ import { CustomRoute } from "@/router";
 
 // 每个页面维护自己的routes
 export const homeRoute: CustomRoute = {
-    path: "/",
+    path: "/home",
     element: <Home />,
     icon: <HomeOutlined />,
     children: [
         {
-            path: "home",
+            path: "",
             label: "主页",
             element: <Recommend />,
         },
