@@ -9,13 +9,13 @@ const webpackDevConfig = merge(config, {
         port: 12345,
         static: "./dist/render",
         // historyApiFallback: true,
-        proxy: {
-            "/api": {
-                target: "http://localhost:2000",
-                pathRewrite: { "^/api": "" },
-            },
-            secure: false,
-        },
+        // proxy: {
+        //     "/api": {
+        //         target: "http://localhost:2000",
+        //         pathRewrite: { "^/api": "" },
+        //     },
+        //     secure: false,
+        // },
     },
     cache: {
         type: "filesystem",

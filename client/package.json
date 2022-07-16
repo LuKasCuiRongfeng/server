@@ -44,6 +44,7 @@
         "less-loader": "^11.0.0",
         "react-i18next": "^11.18.1",
         "react-transition-group": "^4.4.2",
+        "socket.io-client": "^4.5.1",
         "style-loader": "^3.3.1"
     }
 }

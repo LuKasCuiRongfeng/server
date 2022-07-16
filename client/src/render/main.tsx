@@ -10,6 +10,7 @@ import Router from "./router";
 import store from "./store";
 import { changeTheme } from "./core/utils";
 import "./locales";
+import "./core/socket";
 
 createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
