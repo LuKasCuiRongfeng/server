@@ -6,6 +6,7 @@ import { PE, Basketball, Footabll, Tennis } from "@/pages/home/views/pe";
 import Home from ".";
 import Recommend from "./Recommend";
 import { CustomRoute } from "@/router";
+import Chat from "./views/chat";
 
 // 每个页面维护自己的routes
 export const homeRoute: CustomRoute = {
@@ -59,6 +60,11 @@ export const homeRoute: CustomRoute = {
                 },
                 { path: "jazz", label: "爵士音乐", element: <Jazz /> },
             ],
+        },
+        {
+            path: "chat",
+            label: "聊天",
+            element: <Chat />,
         },
     ],
 };

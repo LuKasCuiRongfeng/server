@@ -29,9 +29,10 @@ const io = new Server(httpServer, {
 
 io.on("connection", socket => {
     console.log("连接上了 ...", socket.id);
-    socket.on("fuck", args => {
-        console.log("我接到消息了", args);
-        socket.emit("fuck", args);
+    socket.on("msg", (room, msg) => {
+        socket.join(room);
+        console.log("我接到消息了", msg);
+        io.to(room).emit("msg", room, msg);
     });
 });
 

@@ -43,8 +43,8 @@ const Header: React.FC<Record<string, any>> = () => {
                             </Dropdown>
                         ) : (
                             <div
-                                onClick={() => navigate("/home")}
-                                className={classnames("header-logo")}
+                                onClick={() => navigate(`/home/${d.path}`)}
+                                style={{ cursor: "pointer" }}
                             >
                                 {t(d.label)}
                             </div>
