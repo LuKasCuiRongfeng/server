@@ -7,6 +7,7 @@ interface Configuration extends WebpackConfiguration {
 
 const config: Configuration = {
     entry: "./app.ts",
+    mode: "production",
     output: {
         path: resolve(__dirname, "dist"),
         filename: "[name].[contenthash].js",
@@ -21,6 +22,7 @@ const config: Configuration = {
     resolve: {
         extensions: [".ts", ".js"],
     },
+    target: "node",
     module: {
         rules: [
             {
