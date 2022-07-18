@@ -4,7 +4,7 @@ export type User = {
     name?: string;
     password?: string;
     userId?: string;
-    friends?: User[];
+    friends?: string[];
 };
 
 export type Hero = {

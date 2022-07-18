@@ -1,18 +1,30 @@
+import socket from "@/core/socket";
 import { classnames } from "@/core/utils";
 import { addFriend, getFriends } from "@/pages/home/api";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { User } from "@/types";
-import { Avatar, Input, List, message } from "antd";
+import { Avatar, Button, Input, List, message } from "antd";
 import React, { useEffect, useState } from "react";
 
 const FriendsList = () => {
     const user = useAppSelector(state => state.home.user);
-    const [data, setData] = useState<User[]>([]);
+    const [data, setData] = useState<any[]>([]);
+    const [newFriends, setNewFriends] = useState<string[]>([]);
     const [searchValue, setSearchValue] = useState("");
 
     const dispatch = useAppDispatch();
     useEffect(() => {
         query();
+        socket.on("addfriend", name => {
+            setNewFriends([name, ...newFriends]);
+        });
+        socket.on("permitfriend", name => {
+            setNewFriends(newFriends.filter(el => el !== name));
+            setData([name, ...data]);
+        });
+        return () => {
+            socket.off("addfriend");
+            socket.off("permitfriend");
+        };
     }, []);
 
     useEffect(() => {
@@ -37,25 +49,33 @@ const FriendsList = () => {
         }
         const filter =
             user.friends?.filter(el =>
-                el.name.split("").some(n => value.indexOf(n) > -1)
+                el.split("").some(n => value.indexOf(n) > -1)
             ) || [];
-        filter.unshift({ name: `添加$${value}`, isSearch: true });
+        filter.unshift(`添加$${value}`);
         setData(filter);
     };
 
-    const onClickList = async (name: string, isSearch: boolean) => {
+    const onClickList = async (name: string) => {
+        const isSearch = name.indexOf("$") > -1;
         if (isSearch === true) {
-            // 加新好友
-            const res = await addFriend(user.name, name.split("$")[1]);
-            if (res.data.status === "success") {
-                message.success("成功添加好友, 开始聊天吧");
-                setSearchValue("");
-                await query();
-            } else {
-                message.error(res.data.error);
-            }
+            // 加新好友，发送一个消息
+            socket.emit("addfriend", name.split("$")[1], user.name);
         } else {
             // 打开右边的聊天框
+        }
+    };
+
+    const onClickAddmit = async (name: string) => {
+        socket.emit("permitfriend", name, user.name);
+        // 并更新自己的朋友列表
+        const res = await addFriend({
+            me: user.name,
+            friend: name,
+        });
+        if (res.data.status === "success") {
+            await query();
+        } else {
+            message.error(res.data.error);
         }
     };
     return (
@@ -67,21 +87,39 @@ const FriendsList = () => {
             />
             <div className={classnames("chat-left-panel-list")}>
                 <List
+                    dataSource={newFriends}
+                    renderItem={el => (
+                        <List.Item
+                            key={el}
+                            actions={[
+                                <Button
+                                    key="addmit"
+                                    onClick={() => onClickAddmit(el)}
+                                    type="link"
+                                >
+                                    同意
+                                </Button>,
+                            ]}
+                        >
+                            <List.Item.Meta
+                                title={
+                                    <span style={{ color: "var(--dust-red)" }}>
+                                        {el}
+                                    </span>
+                                }
+                            />
+                        </List.Item>
+                    )}
+                />
+                <List
                     dataSource={data}
-                    renderItem={(item, index) => (
-                        <List.Item>
+                    renderItem={friend => (
+                        <List.Item key={friend}>
                             <List.Item.Meta
                                 avatar={<Avatar />}
                                 title={
-                                    <a
-                                        onClick={() =>
-                                            onClickList(
-                                                item.name,
-                                                item.isSearch
-                                            )
-                                        }
-                                    >
-                                        {item.name}
+                                    <a onClick={() => onClickList(friend)}>
+                                        {friend}
                                     </a>
                                 }
                             />

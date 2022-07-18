@@ -90,10 +90,12 @@ export default class App {
             this.windowManager.destroy("login");
         });
 
-        ipcMain.handle(IpcChannel.USER_INFO, () => {
+        ipcMain.handle(IpcChannel.USER_INFO, (e, socketId) => {
+            socketId && this.store.set("socketId", socketId);
             const userInfo = {
                 name: this.store.get("name"),
                 userId: this.store.get("userId"),
+                socketId: this.store.get("socketId"),
             };
             return userInfo;
         });

@@ -7,7 +7,8 @@ export async function createLoginWin(app: App) {
     const userId = app.store.get("userId");
     const startDate = app.store.get("startDate") as number;
     if (userId && Date.now() - startDate < MAX_AGE) {
-        // 登录过且未过期，直接进入主页面
+        // 登录过且未过期，直接进入主页面，注意需要把socketId清楚掉
+        app.store.delete("socketId");
         await createHomeWin(app);
         return;
     }

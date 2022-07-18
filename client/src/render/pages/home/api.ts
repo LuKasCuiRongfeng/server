@@ -16,18 +16,15 @@ export function addHero(data: Hero) {
 }
 
 export function getFriends(name: string) {
-    return request<CommonResponse & { data: User[] }>({
+    return request<CommonResponse & { data: string[] }>({
         url: "/user/friends",
         params: { name },
     });
 }
 
-export function addFriend(me: string, friend: string) {
+export function addFriend(data: { me: string; friend: string }) {
     return request<CommonResponse>({
         url: "/user/addfriend",
-        params: {
-            me,
-            friend,
-        },
+        params: data,
     });
 }

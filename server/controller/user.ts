@@ -90,10 +90,7 @@ export const addFriend: MiddleWare = async (req, res) => {
                 },
                 {
                     $set: {
-                        friends: [
-                            ...me.friends,
-                            { name: friend.name, friends: friend.friends },
-                        ],
+                        friends: [...me.friends, qs.friend as string],
                     },
                 }
             );

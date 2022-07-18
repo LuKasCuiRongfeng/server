@@ -27,11 +27,35 @@ const io = new Server(httpServer, {
     },
 });
 
+const connectSocketMap: Map<string, string> = new Map();
+
 io.on("connection", socket => {
     console.log("连接上了 ...", socket.id);
     socket.on("msg", (room, msg) => {
         socket.join(room);
         io.to(room).emit("msg", room, msg);
+    });
+
+    socket.on("name:socketId", (name, socketId) => {
+        connectSocketMap.set(name, socketId);
+    });
+
+    socket.on("addfriend", (friend, me) => {
+        const socketId = connectSocketMap.get(friend);
+        if (socketId) {
+            socket.to(socketId).emit("addfreind", me);
+        }
+    });
+
+    socket.on("permitfriend", (friend, me) => {
+        const socketId = connectSocketMap.get(friend);
+        if (socketId) {
+            socket.to(socketId).emit("permitfriend", me);
+        }
+    });
+
+    socket.on("disconnect", reason => {
+        console.log("server socket disconnected: ", reason);
     });
 });
 
