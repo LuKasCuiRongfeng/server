@@ -11,8 +11,9 @@ import {
     InputNumber,
     message,
 } from "antd";
-import { addHero, getLolHeroList, Hero } from "./api";
 import { ColumnsType } from "antd/lib/table";
+import { Hero } from "@/types";
+import { addHero, getLolHeroList } from "@/pages/home/api";
 
 export const Item = () => {
     const [heros, setHeros] = useState<Hero[]>([]);

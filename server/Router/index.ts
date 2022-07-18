@@ -1,10 +1,10 @@
 import { Express } from "express";
-import { router as lolRouter } from "./lol";
-import { router as LoginRouter } from "./login";
+import { lolRouter } from "./lol";
+import { userRouter } from "./user";
 
 export class Router {
     constructor(app: Express) {
         app.use("/lol", lolRouter());
-        app.use("/user", LoginRouter());
+        app.use("/user", userRouter());
     }
 }

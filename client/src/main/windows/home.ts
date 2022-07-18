@@ -19,9 +19,9 @@ export async function createHomeWin(app: App) {
         const startDate = app.store.get("startDate") as number;
         if (Date.now() - startDate >= MAX_AGE) {
             // 过期了，进入登录窗口
-            win.destroy();
-            app.store.delete("sessionId");
+            app.store.delete("userId");
             await createLoginWin(app);
+            win.destroy();
         }
     });
 

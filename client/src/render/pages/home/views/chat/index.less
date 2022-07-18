@@ -1,13 +1,19 @@
 @import url(/src/render/theme.less);
 
 .@{class-prefix}chat {
-    &-room {
-        width: 300px;
-        height: 600px;
-        border: 1px solid yellow;
+    display: flex;
+    &-right-panel {
+        flex: 1;
+        padding: 10px;
         &-send {
-            position: fixed;
-            bottom: 0;
+        }
+    }
+    &-left-panel {
+        flex: 0 0 300px;
+        margin-right: 20px;
+        padding: 10px;
+        &-list {
+            margin-top: 20px;
         }
     }
 }

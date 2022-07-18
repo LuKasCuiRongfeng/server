@@ -1,14 +1,33 @@
 import { request } from "../../core/service";
+import { CommonResponse, Hero, User } from "@/types";
 
-export interface CommonResponse {
-    status: "success" | "failed";
-    error: string;
+export function getLolHeroList() {
+    return request<CommonResponse & { data: Hero[] }>({
+        url: "/lol/list",
+    });
 }
 
-export function getUserInfo(id: string) {
-    return request<CommonResponse & { data: { name: string } }>({
-        url: "/user/userinfo",
+export function addHero(data: Hero) {
+    return request<CommonResponse>({
+        url: "/lol/add",
         method: "post",
-        data: id,
+        data,
+    });
+}
+
+export function getFriends(name: string) {
+    return request<CommonResponse & { data: User[] }>({
+        url: "/user/friends",
+        params: { name },
+    });
+}
+
+export function addFriend(me: string, friend: string) {
+    return request<CommonResponse>({
+        url: "/user/addfriend",
+        params: {
+            me,
+            friend,
+        },
     });
 }

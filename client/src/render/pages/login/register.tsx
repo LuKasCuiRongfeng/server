@@ -1,8 +1,9 @@
+import { User } from "@/types";
 import { Button, Form, Input, message } from "antd";
 import { omit } from "lodash-es";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { User, userReg } from "./api";
+import { userReg } from "./api";
 
 const Login_reg: React.FC<Record<string, any>> = () => {
     const [form] = Form.useForm();

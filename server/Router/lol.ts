@@ -1,12 +1,12 @@
 import express from "express";
-import { lol_addhero, lol_herolist } from "../controller/lol";
+import { add, list } from "../controller/lol";
 
-export function router() {
-    const _router = express.Router();
+export function lolRouter() {
+    const router = express.Router();
 
-    _router.get("/herolist", lol_herolist);
+    router.get("/list", list);
 
-    _router.post("/addhero", lol_addhero);
+    router.post("/add", add);
 
-    return _router;
+    return router;
 }

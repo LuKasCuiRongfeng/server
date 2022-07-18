@@ -1,4 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+export interface CommonResponse {
+    status: "success" | "failed";
+    error: string;
+}
 
 export type User = {
     name?: string;
@@ -13,7 +16,3 @@ export type Hero = {
     stars: 1 | 2 | 3 | 4 | 5;
     difficult: "normal" | "easy" | "difficult" | "hell";
 };
-
-export interface MiddleWare {
-    (req?: Request, res?: Response, next?: NextFunction): any;
-}

@@ -1,15 +1,8 @@
 import { request } from "@/core/service";
-import { CommonResponse } from "../home/api";
-
-export type User = {
-    name: string;
-    password: string;
-};
+import { CommonResponse, User } from "@/types";
 
 export function userLogin(user: User) {
-    return request<
-        CommonResponse & { data: { sessionId: string; name: string } }
-    >({
+    return request<CommonResponse & { data: User }>({
         url: "/user/login",
         method: "post",
         data: user,

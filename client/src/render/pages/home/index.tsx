@@ -11,7 +11,7 @@ const Home: React.FC<Record<string, unknown>> = () => {
         // 拿 userinfo
         window.ipcRenderer.invoke(IpcChannel.USER_INFO, "").then(res => {
             dispatch({
-                type: "home/setUserInfo",
+                type: "home/setUser",
                 payload: res,
             });
         });

@@ -1,6 +1,6 @@
 import { Hero, User } from "../types";
 import { generateCollection } from "../utils";
 
-export const users = generateCollection<User>("FullStack", "users");
+export const usersConnection = generateCollection<User>("FullStack", "users");
 
-export const lolheros = generateCollection<Hero>("FullStack", "lolheros");
+export const lolConnection = generateCollection<Hero>("FullStack", "lol");

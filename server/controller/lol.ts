@@ -1,9 +1,9 @@
-import { lolheros } from "../model/FullStack";
+import { lolConnection } from "../model/FullStack";
 import { MiddleWare, Hero } from "../types";
 
-export const lol_herolist: MiddleWare = async (req, res) => {
+export const list: MiddleWare = async (req, res) => {
     try {
-        const list = await lolheros.find().toArray();
+        const list = await lolConnection.find().toArray();
         res.send({
             status: "success",
             error: "",
@@ -14,10 +14,10 @@ export const lol_herolist: MiddleWare = async (req, res) => {
     }
 };
 
-export const lol_addhero: MiddleWare = async (req, res) => {
+export const add: MiddleWare = async (req, res) => {
     try {
         const body = req.body as Hero;
-        const result = await lolheros.insertOne(body);
+        const result = await lolConnection.insertOne(body);
         const id = result.insertedId;
         if (id) {
             res.send({

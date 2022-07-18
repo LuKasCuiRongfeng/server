@@ -31,7 +31,6 @@ io.on("connection", socket => {
     console.log("连接上了 ...", socket.id);
     socket.on("msg", (room, msg) => {
         socket.join(room);
-        console.log("我接到消息了", msg);
         io.to(room).emit("msg", room, msg);
     });
 });

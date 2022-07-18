@@ -4,7 +4,7 @@ import { Avatar, Dropdown, Menu, Modal } from "antd";
 import React from "react";
 
 const UserSet = () => {
-    const userInfo = useAppSelector(state => state.home.userInfo);
+    const user = useAppSelector(state => state.home.user);
 
     const menu = (
         <Menu
@@ -30,7 +30,7 @@ const UserSet = () => {
     return (
         <Dropdown overlay={menu}>
             <Avatar style={{ backgroundColor: "#87d068" }}>
-                {userInfo.name?.slice(0, 3)}
+                {user.name?.slice(0, 3)}
             </Avatar>
         </Dropdown>
     );
