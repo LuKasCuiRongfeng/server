@@ -4,11 +4,10 @@ import App from "../app";
 import { createHomeWin } from "./home";
 
 export async function createLoginWin(app: App) {
-    const userId = app.store.get("userId");
+    const name = app.store.get("name");
     const startDate = app.store.get("startDate") as number;
-    if (userId && Date.now() - startDate < MAX_AGE) {
+    if (name && Date.now() - startDate < MAX_AGE) {
         // 登录过且未过期，直接进入主页面，注意需要把socketId清楚掉
-        app.store.delete("socketId");
         await createHomeWin(app);
         return;
     }

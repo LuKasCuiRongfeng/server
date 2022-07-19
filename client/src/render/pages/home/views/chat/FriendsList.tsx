@@ -2,27 +2,38 @@ import socket from "@/core/socket";
 import { classnames } from "@/core/utils";
 import { addFriend, getFriends } from "@/pages/home/api";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { Avatar, Button, Input, List, message } from "antd";
-import React, { useEffect, useState } from "react";
+import { Avatar, Badge, Button, Input, List, message } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
 
-const FriendsList = () => {
+type Props = {
+    setPrivate: (isPrivate: boolean) => void;
+    setMembers: (members: string[]) => void;
+    unread: [name: string, msg: string];
+};
+
+const FriendsList = (props: Props) => {
+    const { setPrivate, setMembers, unread } = props;
     const user = useAppSelector(state => state.home.user);
-    const [data, setData] = useState<any[]>([]);
-    const [newFriends, setNewFriends] = useState<string[]>([]);
+    const [data, setData] = useState<string[]>([]);
+    const [strangers, setStrangers] = useState<string[]>([]);
     const [searchValue, setSearchValue] = useState("");
+    const [unReadMap, setUnreadMap] = useState<Map<string, string[]>>(
+        new Map()
+    );
 
     const dispatch = useAppDispatch();
+
     useEffect(() => {
         query();
-        socket.on("addfriend", name => {
-            setNewFriends([name, ...newFriends]);
+        socket.on("add-friend-request", stranger => {
+            setStrangers([stranger, ...strangers]);
         });
-        socket.on("permitfriend", name => {
-            setNewFriends(newFriends.filter(el => el !== name));
-            setData([name, ...data]);
+        socket.on("permitfriend", friend => {
+            setStrangers(strangers.filter(el => el !== friend));
+            setData([friend, ...data]);
         });
         return () => {
-            socket.off("addfriend");
+            socket.off("add-friend-request");
             socket.off("permitfriend");
         };
     }, []);
@@ -30,6 +41,14 @@ const FriendsList = () => {
     useEffect(() => {
         setData(user.friends || []);
     }, [user.friends]);
+
+    useEffect(() => {
+        const _map = new Map([...unReadMap]);
+        const unreadLines = _map.get(unread[0]);
+        unreadLines.unshift(unread[1]);
+        _map.set(unread[0], unreadLines);
+        setUnreadMap(_map);
+    }, [unread]);
 
     const query = async () => {
         const res = await getFriends(user.name);
@@ -55,22 +74,27 @@ const FriendsList = () => {
         setData(filter);
     };
 
-    const onClickList = async (name: string) => {
-        const isSearch = name.indexOf("$") > -1;
+    const onClickList = async (friend: string) => {
+        const isSearch = friend.indexOf("$") > -1;
         if (isSearch === true) {
             // 加新好友，发送一个消息
-            socket.emit("addfriend", name.split("$")[1], user.name);
+            socket.emit("add-friend-request", friend.split("$")[1], user.name);
+            message.success("添加好友消息已经发送");
+            setData(data.slice(1));
+            setSearchValue("");
         } else {
             // 打开右边的聊天框
+            setPrivate(true);
+            setMembers([friend]);
         }
     };
 
-    const onClickAddmit = async (name: string) => {
-        socket.emit("permitfriend", name, user.name);
+    const onClickAddmit = async (friend: string) => {
+        socket.emit("permitfriend", friend, user.name);
         // 并更新自己的朋友列表
         const res = await addFriend({
             me: user.name,
-            friend: name,
+            friend,
         });
         if (res.data.status === "success") {
             await query();
@@ -87,7 +111,7 @@ const FriendsList = () => {
             />
             <div className={classnames("chat-left-panel-list")}>
                 <List
-                    dataSource={newFriends}
+                    dataSource={strangers}
                     renderItem={el => (
                         <List.Item
                             key={el}
@@ -116,11 +140,27 @@ const FriendsList = () => {
                     renderItem={friend => (
                         <List.Item key={friend}>
                             <List.Item.Meta
-                                avatar={<Avatar />}
+                                avatar={
+                                    <Badge
+                                        size="small"
+                                        count={
+                                            unReadMap.get(friend)
+                                                ? unReadMap.get(friend).length
+                                                : 0
+                                        }
+                                    >
+                                        <Avatar />
+                                    </Badge>
+                                }
                                 title={
                                     <a onClick={() => onClickList(friend)}>
                                         {friend}
                                     </a>
+                                }
+                                description={
+                                    unReadMap.get(friend)
+                                        ? unReadMap.get(friend)[0]
+                                        : ""
                                 }
                             />
                         </List.Item>

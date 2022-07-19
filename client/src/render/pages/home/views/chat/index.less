@@ -2,16 +2,26 @@
 
 .@{class-prefix}chat {
     display: flex;
+    min-height: 500px;
+    padding: 10px;
     &-right-panel {
+        box-shadow: var(--box-shadow);
         flex: 1;
-        padding: 10px;
-        &-send {
+        display: flex;
+        flex-direction: column;
+        &-body {
+            flex: 1;
+            &-title {
+                text-align: center;
+                font-size: var(--l-font-size);
+                padding: 10px 0;
+            }
         }
     }
     &-left-panel {
         flex: 0 0 300px;
         margin-right: 20px;
-        padding: 10px;
+        box-shadow: var(--box-shadow);
         &-list {
             margin-top: 20px;
         }

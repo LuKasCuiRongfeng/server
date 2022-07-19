@@ -74,14 +74,12 @@ export default class App {
         ipcMain.on(IpcChannel.WINDOW_LOGIN, async (e, args) => {
             if (args.exit === true) {
                 // 推出登录
-                this.store.delete("userId");
+                this.store.delete("name");
                 await createLoginWin(this);
                 this.windowManager.destroy("home");
                 return;
             }
-            // 把 userId 保存在本地，并更新过期时间
             this.store.set({
-                userId: args.userId,
                 name: args.name,
                 startDate: Date.now(),
             });
@@ -94,7 +92,6 @@ export default class App {
             socketId && this.store.set("socketId", socketId);
             const userInfo = {
                 name: this.store.get("name"),
-                userId: this.store.get("userId"),
                 socketId: this.store.get("socketId"),
             };
             return userInfo;

@@ -6,7 +6,6 @@ export interface CommonResponse {
 export type User = {
     name?: string;
     password?: string;
-    userId?: string;
     friends?: string[];
     socketId?: string;
 };
