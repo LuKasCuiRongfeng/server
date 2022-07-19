@@ -3,55 +3,72 @@ import { classnames } from "@/core/utils";
 import { addFriend, getFriends } from "@/pages/home/api";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { Avatar, Badge, Button, Input, List, message } from "antd";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Msg } from "./room";
 
 type Props = {
     setPrivate: (isPrivate: boolean) => void;
     setMembers: (members: string[]) => void;
-    unread: [name: string, msg: string];
+    setUnreadLines: (unreadLines: Msg[]) => void;
+    unreadLine: Msg;
 };
 
 const FriendsList = (props: Props) => {
-    const { setPrivate, setMembers, unread } = props;
+    const { setPrivate, setMembers, unreadLine, setUnreadLines } = props;
     const user = useAppSelector(state => state.home.user);
-    const [data, setData] = useState<string[]>([]);
+    const [friends, setFriends] = useState<string[]>([]);
     const [strangers, setStrangers] = useState<string[]>([]);
     const [searchValue, setSearchValue] = useState("");
-    const [unReadMap, setUnreadMap] = useState<Map<string, string[]>>(
-        new Map()
-    );
+    const [unReadMap, setUnreadMap] = useState<Map<string, Msg[]>>(new Map());
 
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         query();
         socket.on("add-friend-request", stranger => {
+            // 收到添加好友的请求，陌生人列表+1
             setStrangers([stranger, ...strangers]);
         });
-        socket.on("permitfriend", friend => {
-            setStrangers(strangers.filter(el => el !== friend));
-            setData([friend, ...data]);
+        socket.on("permit-add-friend", async friend => {
+            // 对方同意添加好友，好友列表 +1
+            // 同时需要更新数据库里的好友列表
+            // 更新朋友列表有两种情况
+            // 1：同意对方添加好友
+            // 2：对方同意添加好友
+            setFriends([friend, ...friends]);
+            addUnreadMsg({
+                name: friend,
+                date: new Date(),
+                msg: "你们已经是好友了, 开始聊天吧",
+            });
+            const res = await addFriend({
+                me: user.name,
+                friend,
+            });
+            if (res.data.status === "success") {
+                // await query();
+            } else {
+                message.error(res.data.error);
+            }
         });
         return () => {
             socket.off("add-friend-request");
-            socket.off("permitfriend");
+            socket.off("permit-add-friend");
         };
     }, []);
 
     useEffect(() => {
-        setData(user.friends || []);
+        setFriends(user.friends || []);
     }, [user.friends]);
 
     useEffect(() => {
-        const _map = new Map([...unReadMap]);
-        const unreadLines = _map.get(unread[0]);
-        unreadLines.unshift(unread[1]);
-        _map.set(unread[0], unreadLines);
-        setUnreadMap(_map);
-    }, [unread]);
+        unreadLine && addUnreadMsg(unreadLine);
+    }, [unreadLine]);
 
     const query = async () => {
         const res = await getFriends(user.name);
+        // 查到朋友列表后会去更新 store 里的 user
+        // 以便其他地方可以使用
         if (res.data.status === "success") {
             dispatch({
                 type: "home/setUser",
@@ -60,18 +77,28 @@ const FriendsList = (props: Props) => {
         }
     };
 
+    const addUnreadMsg = (msg: Msg) => {
+        const _map = new Map([...unReadMap]);
+        const unreadLines = _map.get(msg.name) || [];
+        unreadLines.unshift(msg);
+        _map.set(msg.name, unreadLines);
+        setUnreadMap(_map);
+    };
+
     const onChangeSearch = (value: string) => {
         setSearchValue(value);
         if (!value) {
-            setData(user.friends || []);
+            setFriends(user.friends || []);
             return;
         }
+        // 只要某个字匹配上了，就算匹配上
         const filter =
             user.friends?.filter(el =>
                 el.split("").some(n => value.indexOf(n) > -1)
             ) || [];
+        // 朋友列表的第一行显示可以添加搜索人
         filter.unshift(`添加$${value}`);
-        setData(filter);
+        setFriends(filter);
     };
 
     const onClickList = async (friend: string) => {
@@ -80,24 +107,36 @@ const FriendsList = (props: Props) => {
             // 加新好友，发送一个消息
             socket.emit("add-friend-request", friend.split("$")[1], user.name);
             message.success("添加好友消息已经发送");
-            setData(data.slice(1));
+            setFriends(friends.slice(1));
             setSearchValue("");
         } else {
             // 打开右边的聊天框
             setPrivate(true);
+            // 设置 聊天框里的成员
             setMembers([friend]);
+            setUnreadLines(unReadMap.get(friend) || []);
+            unReadMap.set(friend, []);
         }
     };
 
     const onClickAddmit = async (friend: string) => {
-        socket.emit("permitfriend", friend, user.name);
-        // 并更新自己的朋友列表
+        // 同意添加好友，陌生人列表 -1，朋友列表 +1
+        socket.emit("permit-add-friend", friend, user.name);
+        setStrangers(strangers.filter(el => el !== friend));
+        setFriends([friend, ...friends]);
+
+        addUnreadMsg({
+            name: friend,
+            date: new Date(),
+            msg: "你们已经是好友了, 开始聊天吧",
+        });
+        // 更新数据库的朋友列表
         const res = await addFriend({
             me: user.name,
             friend,
         });
         if (res.data.status === "success") {
-            await query();
+            // await query();
         } else {
             message.error(res.data.error);
         }
@@ -136,7 +175,7 @@ const FriendsList = (props: Props) => {
                     )}
                 />
                 <List
-                    dataSource={data}
+                    dataSource={friends}
                     renderItem={friend => (
                         <List.Item key={friend}>
                             <List.Item.Meta
@@ -159,7 +198,7 @@ const FriendsList = (props: Props) => {
                                 }
                                 description={
                                     unReadMap.get(friend)
-                                        ? unReadMap.get(friend)[0]
+                                        ? unReadMap.get(friend)[0].msg
                                         : ""
                                 }
                             />

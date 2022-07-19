@@ -2,23 +2,26 @@ import { classnames } from "@/core/utils";
 import React, { useState } from "react";
 import "./index.less";
 import FriendsList from "./FriendsList";
-import Room from "./room";
+import Room, { Msg } from "./room";
 
 const Chat = () => {
     const [isPrivate, setPrivate] = useState(true);
     const [members, setMembers] = useState<string[]>([]);
-    const [unread, setUnread] = useState<[name: string, msg: string]>(["", ""]);
+    const [unreadLine, addUnreadLine] = useState<Msg>();
+    const [unreadLines, setUnreadLines] = useState<Msg[]>([]);
     return (
         <div className={classnames("chat")}>
             <FriendsList
                 setPrivate={p => setPrivate(p)}
                 setMembers={m => setMembers(m)}
-                unread={unread}
+                setUnreadLines={l => setUnreadLines(l)}
+                unreadLine={unreadLine}
             />
             <Room
-                setUnread={(name, msg) => setUnread([name, msg])}
+                addUnreadLine={msg => addUnreadLine(msg)}
                 isPrivate={isPrivate}
                 members={members}
+                unreadLines={unreadLines}
             />
         </div>
     );

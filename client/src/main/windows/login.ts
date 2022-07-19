@@ -12,6 +12,9 @@ export async function createLoginWin(app: App) {
         return;
     }
 
+    // 避免过期没有删除掉name，主动删除
+    app.store.delete("name");
+
     const win = app.windowManager.createWin({
         key: "login",
         browserWindowConstructorOptions: {

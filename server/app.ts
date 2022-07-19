@@ -3,26 +3,12 @@ import { Router } from "./Router";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
-
-// socket
-interface ServerToClientEvents {
-    noArg: () => void;
-    basicEmit: (a: number, b: string, c: Buffer) => void;
-    withAck: (d: string, callback: (e: number) => void) => void;
-}
-
-interface ClientToServerEvents {
-    hello: () => void;
-}
-
-interface InterServerEvents {
-    ping: () => void;
-}
-
-interface SocketData {
-    name: string;
-    age: number;
-}
+import {
+    ClientToServerEvents,
+    InterServerEvents,
+    ServerToClientEvents,
+    SocketData,
+} from "./types";
 
 const PORT = 2000;
 
@@ -41,7 +27,12 @@ new Router(app);
 
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, {
+const io = new Server<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SocketData
+>(httpServer, {
     cors: {
         origin: "http://localhost:12345",
     },
@@ -71,15 +62,15 @@ io.on("connection", socket => {
             JSON.stringify(connectSocketMap)
         );
         if (socketId) {
-            socket.to(socketId).emit("add-freind-request", me);
+            socket.to(socketId).emit("add-friend-request", me);
         }
     });
 
-    socket.on("permitfriend", (friend, me) => {
+    socket.on("permit-add-friend", (friend, me) => {
         const socketId = connectSocketMap.get(friend);
         console.log("permit socket: ", socketId);
         if (socketId) {
-            socket.to(socketId).emit("permitfriend", me);
+            socket.to(socketId).emit("permit-add-friend", me);
         }
     });
 

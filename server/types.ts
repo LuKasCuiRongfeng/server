@@ -17,3 +17,25 @@ export type Hero = {
 export interface MiddleWare {
     (req?: Request, res?: Response, next?: NextFunction): any;
 }
+
+// socket
+export interface ServerToClientEvents {
+    "add-friend-request": (me: string) => void;
+    "private-chat": (msg: string, me: string) => void;
+    "permit-add-friend": (me: string) => void;
+}
+
+export interface ClientToServerEvents {
+    "add-friend-request": (friend: string, me: string) => void;
+    "private-chat": (msg: string, me: string, members: string[]) => void;
+    "name:socketId": (name: string, socketId: string) => void;
+    "permit-add-friend": (friend: string, me: string) => void;
+}
+
+export interface InterServerEvents {
+    ping: () => void;
+}
+
+export interface SocketData {
+    name: string;
+}

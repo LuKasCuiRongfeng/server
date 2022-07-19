@@ -1,18 +1,23 @@
 import { IpcChannel } from "@main/ipc";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 // socket
 interface ServerToClientEvents {
-    noArg: () => void;
-    basicEmit: (a: number, b: string, c: Buffer) => void;
-    withAck: (d: string, callback: (e: number) => void) => void;
+    "add-friend-request": (stranger: string) => void;
+    "private-chat": (msg: string, friend: string) => void;
+    "permit-add-friend": (friend: string) => void;
 }
 
 interface ClientToServerEvents {
-    hello: () => void;
+    "add-friend-request": (stranger: string, me: string) => void;
+    "private-chat": (msg: string, me: string, members: string[]) => void;
+    "name:socketId": (name: string, socketId: string) => void;
+    "permit-add-friend": (friend: string, me: string) => void;
 }
 
-const socket = io("ws://localhost:2000");
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+    "ws://localhost:2000"
+);
 
 socket.on("connect", async () => {
     console.log("socket connected@: ", socket.id);
