@@ -131,3 +131,15 @@ export const getAvatar: MiddleWare = async (req, res) => {
         res.send({ status: "failed", error: err.error });
     }
 };
+
+const totalBlob = [];
+
+export const uploadAvatar: MiddleWare = async (req, res) => {
+    try {
+        const body = req.body;
+
+        console.log(body);
+    } catch (err) {
+        res.send({ status: "failed", error: err.error });
+    }
+};

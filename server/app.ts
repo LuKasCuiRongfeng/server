@@ -3,6 +3,7 @@ import { Router } from "./Router";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
+import multer from "multer";
 import {
     ClientToServerEvents,
     InterServerEvents,

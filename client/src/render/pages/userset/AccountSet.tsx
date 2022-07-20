@@ -11,12 +11,15 @@ const AccountSet = () => {
     const onClickAvatar = async () => {
         const filePaths = await window.ipcRenderer.invoke(
             IpcChannel.OPEN_DIALOG,
-            [
-                {
-                    name: "Images",
-                    extensions: ["jpg", "png", "gif"],
-                },
-            ]
+            {
+                filters: [
+                    {
+                        name: "Images",
+                        extensions: ["jpg", "png", "gif"],
+                    },
+                ],
+                uploadURL: "http://localhost:2000/user/uploadavatar",
+            }
         );
         console.log(filePaths);
     };

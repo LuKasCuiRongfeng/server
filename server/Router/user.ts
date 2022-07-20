@@ -1,10 +1,12 @@
 import express from "express";
+import multer from "multer";
 import {
     addFriend,
     friends,
     getAvatar,
     login,
     register,
+    uploadAvatar,
 } from "../controller/user";
 
 export function userRouter() {
@@ -19,6 +21,8 @@ export function userRouter() {
     router.get("/addfriend", addFriend);
 
     router.get("/getavatar", getAvatar);
+
+    router.post("/uploadavatar", multer().single("ff"), uploadAvatar);
 
     return router;
 }

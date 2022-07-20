@@ -1,8 +1,9 @@
 import { CommonResponse } from "@/types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { HOST } from "./const";
 
 const instance = axios.create({
-    baseURL: "http://101.34.31.53:80",
+    baseURL: `http://${HOST}`,
     timeout: 30000,
 });
 

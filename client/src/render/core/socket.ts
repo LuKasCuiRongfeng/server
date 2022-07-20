@@ -1,5 +1,6 @@
 import { IpcChannel } from "@main/ipc";
 import { io, Socket } from "socket.io-client";
+import { HOST } from "./const";
 
 // socket
 interface ServerToClientEvents {
@@ -16,7 +17,7 @@ interface ClientToServerEvents {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-    "ws://101.34.31.53:80"
+    `ws://${HOST}`
 );
 
 socket.on("connect", async () => {

@@ -12,6 +12,7 @@ export enum IpcChannel {
     WINDOW_LOGIN = "WINDOW_LOGIN",
     USER_INFO = "USER_INFO",
     OPEN_DIALOG = "OPEN_DIALOG",
+    FILE_UPLOAD = "FILE_UPLOAD",
 }
 
 export enum ControlId {

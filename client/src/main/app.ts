@@ -1,6 +1,7 @@
 import { dialog, ipcMain } from "electron";
 import Store from "electron-store";
 import { URL } from "./core/url";
+import { uploadFile } from "./core/utils";
 import {
     CrossWinData,
     WinConstructorOptions,
@@ -97,15 +98,23 @@ export default class App {
             return userInfo;
         });
 
-        ipcMain.handle(IpcChannel.OPEN_DIALOG, async (e, filters) => {
-            const res = await dialog.showOpenDialog({
-                buttonLabel: "确定",
-                filters,
-                properties: ["openFile", "dontAddToRecent"],
-            });
-            const filePaths = res.filePaths;
+        ipcMain.handle(
+            IpcChannel.OPEN_DIALOG,
+            async (e, { filters, uploadURL }) => {
+                const res = await dialog.showOpenDialog({
+                    buttonLabel: "确定",
+                    filters,
+                    properties: ["openFile", "dontAddToRecent"],
+                });
+                const filePaths = res.filePaths;
 
-            return filePaths;
-        });
+                uploadFile(filePaths[0], uploadURL, {
+                    win: this.windowManager.getWin("userset"),
+                    chunkSize: 5 * 1024 * 1024,
+                });
+
+                return filePaths;
+            }
+        );
     }
 }
