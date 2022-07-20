@@ -11,10 +11,32 @@
         flex-direction: column;
         &-body {
             flex: 1;
+            background: var(--gray-2);
+            padding: 10px;
             &-title {
                 text-align: center;
                 font-size: var(--l-font-size);
                 padding: 10px 0;
+            }
+            &-line {
+                display: flex;
+                border-radius: var(--m-border-radius);
+                padding: 4px;
+                min-width: 100px;
+                background: var(--gray-1);
+                flex-direction: column;
+                align-items: flex-start;
+                &-time {
+                    font-size: var(--s-font-size);
+                    color: var(--gray-7);
+                }
+                &-msg {
+                    font-size: var(--m-font-size);
+                }
+            }
+            &-line-right {
+                float: right;
+                background: var(--lime-nature);
             }
         }
     }

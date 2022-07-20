@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { Avatar, Badge, Button, Input, List, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { Msg } from "./room";
+import dayjs from "dayjs";
 
 type Props = {
     setPrivate: (isPrivate: boolean) => void;
@@ -38,7 +39,7 @@ const FriendsList = (props: Props) => {
             setFriends([friend, ...friends]);
             addUnreadMsg({
                 name: friend,
-                date: new Date(),
+                date: dayjs(),
                 msg: "你们已经是好友了, 开始聊天吧",
             });
             const res = await addFriend({
@@ -127,7 +128,7 @@ const FriendsList = (props: Props) => {
 
         addUnreadMsg({
             name: friend,
-            date: new Date(),
+            date: dayjs(),
             msg: "你们已经是好友了, 开始聊天吧",
         });
         // 更新数据库的朋友列表
@@ -198,7 +199,7 @@ const FriendsList = (props: Props) => {
                                 }
                                 description={
                                     unReadMap.get(friend)
-                                        ? unReadMap.get(friend)[0].msg
+                                        ? unReadMap.get(friend)[0]?.msg
                                         : ""
                                 }
                             />

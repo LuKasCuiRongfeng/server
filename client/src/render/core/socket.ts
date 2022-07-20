@@ -16,7 +16,7 @@ interface ClientToServerEvents {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-    "ws://localhost:2000"
+    "ws://101.34.31.53:80"
 );
 
 socket.on("connect", async () => {
