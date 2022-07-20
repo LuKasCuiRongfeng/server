@@ -53,42 +53,34 @@ const Room = (props: Props) => {
     }, [unreadLines]);
 
     const renderMsgLine = (line: Msg) => {
-        if (line.name === user.name) {
-            // 右边
-            return (
+        return (
+            <div
+                key={line.date.toString()}
+                className={classnames("chat-right-panel-body-line", {
+                    "chat-right-panel-body-line-right": line.name === user.name,
+                })}
+            >
                 <div
-                    key={line.date.toString()}
-                    className={classnames(
-                        "chat-right-panel-body-line",
-                        "chat-right-panel-body-line-right"
-                    )}
+                    className={classnames("chat-right-panel-body-line-avtator")}
+                ></div>
+                <div
+                    className={classnames("chat-right-panel-body-line-content")}
                 >
                     <span
                         className={classnames(
-                            "chat-right-panel-body-line-time"
+                            "chat-right-panel-body-line-content-time"
                         )}
                     >
-                        {timeFormatter({ dayEnd: line.date })}
+                        {timeFormatter({ dayStart: line.date })}
                     </span>
                     <span
-                        className={classnames("chat-right-panel-body-line-msg")}
+                        className={classnames(
+                            "chat-right-panel-body-line-content-msg"
+                        )}
                     >
                         {line.msg}
                     </span>
                 </div>
-            );
-        }
-        return (
-            <div
-                key={line.date.toString()}
-                className={classnames("chat-right-panel-body-line")}
-            >
-                <span className={classnames("chat-right-panel-body-line-msg")}>
-                    {line.msg}
-                </span>
-                <span className={classnames("chat-right-panel-body-line-time")}>
-                    {timeFormatter({ dayEnd: line.date })}
-                </span>
             </div>
         );
     };

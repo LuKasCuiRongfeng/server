@@ -2,9 +2,11 @@ import { Request, Response, NextFunction } from "express";
 
 export type User = {
     name?: string;
+    nickName?: string;
     password?: string;
     userId?: string;
     friends?: string[];
+    avatar?: string;
 };
 
 export type Hero = {

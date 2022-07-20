@@ -1,3 +1,4 @@
+import { CommonResponse } from "@/types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const instance = axios.create({
@@ -57,7 +58,11 @@ instance.interceptors.response.use(
     }
 );
 
-export async function request<T>(config: AxiosRequestConfig) {
-    const res: AxiosResponse<T> = await instance.request(config);
+export async function request<T = Record<string, any>>(
+    config: AxiosRequestConfig
+) {
+    const res: AxiosResponse<CommonResponse & T> = await instance.request(
+        config
+    );
     return res;
 }

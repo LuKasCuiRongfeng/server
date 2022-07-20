@@ -39,6 +39,7 @@ export const register: MiddleWare = async (req, res) => {
                 ...body,
                 userId: createHmac("sha256", body.name).digest("hex"),
                 friends: [],
+                avatar: "",
             });
             res.send({
                 status: "success",
@@ -97,6 +98,28 @@ export const addFriend: MiddleWare = async (req, res) => {
             res.send({
                 status: "success",
                 error: "",
+            });
+        } else {
+            res.send({
+                status: "failed",
+                error: "用户不存在",
+            });
+        }
+    } catch (err) {
+        res.send({ status: "failed", error: err.error });
+    }
+};
+
+export const getAvatar: MiddleWare = async (req, res) => {
+    try {
+        const qs = req.query;
+
+        const user = await usersConnection.findOne<User>({ name: qs.name });
+        if (user) {
+            res.send({
+                status: "success",
+                error: "",
+                data: user.avatar,
             });
         } else {
             res.send({

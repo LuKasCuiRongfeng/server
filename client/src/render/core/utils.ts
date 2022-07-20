@@ -66,7 +66,7 @@ export function timeFormatter(formatterOption?: FormatterOption) {
     } = formatterOption || {};
     switch (formatType) {
         case "timestring":
-            if (dayStart.diff(dayEnd, "day") >= 1) {
+            if (dayStart.diff(dayEnd, "day") <= -1) {
                 return dayStart.from(dayEnd);
             }
             return dayStart.format("HH:mm");

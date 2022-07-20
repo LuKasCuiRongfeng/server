@@ -1,8 +1,8 @@
 import { request } from "@/core/service";
-import { CommonResponse, User } from "@/types";
+import { User } from "@/types";
 
 export function userLogin(user: User) {
-    return request<CommonResponse & { data: User }>({
+    return request<{ data: User }>({
         url: "/user/login",
         method: "post",
         data: user,
@@ -10,7 +10,7 @@ export function userLogin(user: User) {
 }
 
 export function userReg(user: User) {
-    return request<CommonResponse>({
+    return request({
         url: "/user/register",
         method: "post",
         data: user,

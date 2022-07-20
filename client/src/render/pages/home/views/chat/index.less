@@ -20,23 +20,30 @@
             }
             &-line {
                 display: flex;
-                border-radius: var(--m-border-radius);
-                padding: 4px;
-                min-width: 100px;
-                background: var(--gray-1);
-                flex-direction: column;
-                align-items: flex-start;
-                &-time {
-                    font-size: var(--s-font-size);
-                    color: var(--gray-7);
-                }
-                &-msg {
-                    font-size: var(--m-font-size);
+                margin: 10px 0;
+                &-content {
+                    display: flex;
+                    padding: 4px;
+                    border-radius: var(--l-border-radius);
+                    flex-direction: column;
+                    background: var(--gray-1);
+                    &-time {
+                        font-size: var(--s-font-size);
+                        color: var(--gray-7);
+                    }
+                    &-msg {
+                        font-size: var(--m-font-size);
+                    }
                 }
             }
             &-line-right {
-                float: right;
-                background: var(--lime-nature);
+                flex-direction: row-reverse;
+                .@{class-prefix}chat-right-panel-body-line-content {
+                    background: var(--lime-nature);
+                    span {
+                        text-align: right;
+                    }
+                }
             }
         }
     }

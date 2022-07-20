@@ -8,6 +8,7 @@ export type User = {
     password?: string;
     friends?: string[];
     socketId?: string;
+    avatar?: string;
 };
 
 export type Hero = {

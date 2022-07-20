@@ -16,6 +16,8 @@ export interface WinConstructorOptions {
     key: string;
     /** 是否向窗口传递数据 */
     data?: WinData;
+    /** 父窗口的key */
+    parent?: string;
     /** 是否禁用默认的关闭行为，default false */
     preventDefaultClose?: boolean;
     /** 是否打开开发者工具，default false */
@@ -45,6 +47,7 @@ export class WindowManager {
         const {
             key,
             data,
+            parent,
             openDevTools = false,
             preventDefaultClose = false,
             browserWindowConstructorOptions,
@@ -63,11 +66,22 @@ export class WindowManager {
         win = new BrowserWindow(
             merge(
                 { ...defaultBrowserWindowConstructorOptions },
-                browserWindowConstructorOptions
+                browserWindowConstructorOptions,
+                {
+                    ...{
+                        parent: this.getWin(parent),
+                    },
+                }
             )
         );
 
         this.wins.set(key, win);
+
+        // 设置父窗口
+        // if (parent != undefined) {
+        //     const parentWin = this.getWin(parent);
+        //     parentWin && win.setParentWindow(parentWin);
+        // }
 
         win.loadURL(this.app.URL.getLoadURL(key));
 

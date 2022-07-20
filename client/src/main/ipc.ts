@@ -11,6 +11,7 @@ export enum IpcChannel {
     ELECTRON_STORE = "ELECTRON_STORE",
     WINDOW_LOGIN = "WINDOW_LOGIN",
     USER_INFO = "USER_INFO",
+    OPEN_DIALOG = "OPEN_DIALOG",
 }
 
 export enum ControlId {

@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { dialog, ipcMain } from "electron";
 import Store from "electron-store";
 import { URL } from "./core/url";
 import {
@@ -95,6 +95,17 @@ export default class App {
                 socketId: this.store.get("socketId"),
             };
             return userInfo;
+        });
+
+        ipcMain.handle(IpcChannel.OPEN_DIALOG, async (e, filters) => {
+            const res = await dialog.showOpenDialog({
+                buttonLabel: "确定",
+                filters,
+                properties: ["openFile", "dontAddToRecent"],
+            });
+            const filePaths = res.filePaths;
+
+            return filePaths;
         });
     }
 }

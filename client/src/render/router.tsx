@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, HashRouter, Route } from "react-router-dom";
 import { homeRoute } from "./pages/home/route";
 import { LoginRoute } from "./pages/login/route";
+import { UserSetRoute } from "./pages/userset/route";
 
 export interface CustomRoute {
     label?: string;
@@ -55,6 +56,7 @@ const Router: React.FC<Record<string, any>> = () => {
             <Routes>
                 {generateSingleNestRoute(homeRoute)}
                 {generateSingleNestRoute(LoginRoute)}
+                {generateSingleNestRoute(UserSetRoute)}
             </Routes>
         </HashRouter>
     );
