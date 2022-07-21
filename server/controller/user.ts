@@ -2,6 +2,8 @@ import { createHmac } from "crypto";
 import { usersConnection } from "../model/FullStack";
 import { MiddleWare, User } from "../types";
 import busboy from "busboy";
+import { dirname, extname, resolve } from "path";
+import { createReadStream, createWriteStream } from "fs";
 
 export const login: MiddleWare = async (req, res) => {
     try {
@@ -117,10 +119,16 @@ export const getAvatar: MiddleWare = async (req, res) => {
 
         const user = await usersConnection.findOne<User>({ name: qs.name });
         if (user) {
+            // 转base64
+            const chunks = [];
+            const rs = createReadStream(
+                resolve(__dirname, `../assets/avatar/${user.avatar}`)
+            );
+            rs.on("data", chunk => chunks.push(chunk));
             res.send({
                 status: "success",
                 error: "",
-                data: user.avatar,
+                data: `/static/avatar/${user.avatar}`,
             });
         } else {
             res.send({
@@ -133,29 +141,56 @@ export const getAvatar: MiddleWare = async (req, res) => {
     }
 };
 
-const totalBlob = [];
-
 export const uploadAvatar: MiddleWare = async (req, res) => {
     try {
         const _busboy = busboy({ headers: req.headers });
+        let filesize = 0,
+            username = "",
+            fileName = "";
+
+        _busboy.on("field", (field, val, info) => {
+            if (field === "filesize") {
+                filesize = +val;
+            } else if (field === "username") {
+                username = val;
+            }
+        });
+
         _busboy.on("file", (name, file, { filename, encoding, mimeType }) => {
-            console.log(
-                `File [${name}]: filename: %j, encoding: %j, mimeType: %j`,
-                filename,
-                encoding,
-                mimeType
+            fileName = filename;
+            console.log("filename", fileName, file.readableLength);
+            file.pipe(
+                createWriteStream(
+                    resolve(__dirname, "../assets/avatar", fileName)
+                )
             );
             file.on("data", data => {
-                console.log(`File [${name}] got ${data.length} bytes`);
+                console.log(11);
             }).on("close", () => {
-                console.log(`File [${name}] done`);
+                console.log(11);
             });
         });
-        _busboy.on("close", () => {
-            console.log("Done parsing form!");
-            res.writeHead(303, { Connection: "close", Location: "/" });
-            res.end();
+
+        _busboy.on("close", async () => {
+            // 更新数据库里的用户头像信息
+
+            await usersConnection.updateOne(
+                {
+                    name: username,
+                },
+                {
+                    $set: {
+                        avatar: fileName,
+                    },
+                }
+            );
+
+            res.send({
+                status: "success",
+                error: "",
+            });
         });
+
         req.pipe(_busboy);
     } catch (err) {
         res.send({ status: "failed", error: err.error });

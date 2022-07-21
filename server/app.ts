@@ -1,4 +1,4 @@
-import express from "express";
+import express, { application } from "express";
 import { Router } from "./Router";
 import { Server } from "socket.io";
 import { createServer } from "http";
@@ -23,6 +23,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use("/static", express.static("assets"));
 
 new Router(app);
 

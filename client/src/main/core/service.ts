@@ -4,7 +4,6 @@ import { HOST } from "./const";
 
 const instance = axios.create({
     baseURL: `http://${HOST}`,
-    timeout: 30000,
 });
 
 instance.interceptors.request.use(

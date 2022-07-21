@@ -1,12 +1,16 @@
-import { useAppSelector } from "@/store/hooks";
+import { HOST } from "@/core/const";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IpcChannel } from "@main/ipc";
 import { Avatar } from "antd";
 import React from "react";
+import { getAvatar } from "../home/api";
 
 const AccountSet = () => {
     const user = useAppSelector(state => state.userset.user);
 
     console.log(user);
+
+    const dispatch = useAppDispatch();
 
     const onClickAvatar = async () => {
         const filePaths = await window.ipcRenderer.invoke(
@@ -15,13 +19,21 @@ const AccountSet = () => {
                 filters: [
                     {
                         name: "Images",
-                        extensions: ["jpg", "png", "gif"],
+                        extensions: ["*"],
                     },
                 ],
-                uploadURL: "http://localhost:2000/user/uploadavatar",
+                url: "/user/uploadavatar",
+                name: user.name,
             }
         );
-        console.log(filePaths);
+        // 更新头像
+        const res = await getAvatar(user.name);
+        if (res.data.status === "success") {
+            dispatch({
+                type: "userset/setUser",
+                payload: { ...user, avatar: `http://${HOST}${res.data.data}` },
+            });
+        }
     };
     return (
         <div>

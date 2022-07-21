@@ -25,7 +25,17 @@ export type IpcChannelType = keyof typeof IpcChannel;
 
 type PrimaryDataType = string | number | boolean | symbol | Record<string, any>;
 
+type FileUploadDataType = {
+    /** 文件选择选项 */
+    filters: { name: string; extensions: string[] }[];
+    /** 上传地址 */
+    url: string;
+    /** 用户名，唯一 */
+    name: string;
+};
+
 export type IpcDataType =
     | WinConstructorOptions // 创建窗口时
     | PrimaryDataType // 普通字符串数据
-    | CrossWinData; // 向另外一个窗口传递数据时
+    | CrossWinData // 向另外一个窗口传递数据时
+    | FileUploadDataType;

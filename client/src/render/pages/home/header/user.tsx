@@ -1,3 +1,4 @@
+import { HOST } from "@/core/const";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IpcChannel } from "@main/ipc";
 import { Avatar, Dropdown, Menu, message, Modal } from "antd";
@@ -15,7 +16,10 @@ const UserSet = () => {
                 if (res.data.status === "success") {
                     dispatch({
                         type: "home/setUser",
-                        payload: { ...user, avatar: res.data.data },
+                        payload: {
+                            ...user,
+                            avatar: `http://${HOST}${res.data.data}`,
+                        },
                     });
                 } else {
                     message.error(res.data.error);

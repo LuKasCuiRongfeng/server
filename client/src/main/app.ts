@@ -100,20 +100,27 @@ export default class App {
 
         ipcMain.handle(
             IpcChannel.OPEN_DIALOG,
-            async (e, { filters, uploadURL }) => {
-                const res = await dialog.showOpenDialog({
-                    buttonLabel: "确定",
-                    filters,
-                    properties: ["openFile", "dontAddToRecent"],
-                });
-                const filePaths = res.filePaths;
+            async (e, { filters, url, name }) => {
+                try {
+                    const res = await dialog.showOpenDialog({
+                        buttonLabel: "确定",
+                        filters,
+                        properties: ["openFile", "dontAddToRecent"],
+                    });
+                    const filePaths = res.filePaths;
 
-                uploadFile(filePaths[0], uploadURL, {
-                    win: this.windowManager.getWin("userset"),
-                    chunkSize: 5 * 1024 * 1024,
-                });
+                    const result = await uploadFile({
+                        filepath: filePaths[0],
+                        url,
+                        name,
+                    });
 
-                return filePaths;
+                    console.log(result.data.error);
+
+                    return filePaths;
+                } catch (err) {
+                    console.error(err);
+                }
             }
         );
     }
