@@ -22,7 +22,7 @@ export function userRouter() {
 
     router.get("/getavatar", getAvatar);
 
-    router.post("/uploadavatar", multer().single("ff"), uploadAvatar);
+    router.post("/uploadavatar", uploadAvatar);
 
     return router;
 }

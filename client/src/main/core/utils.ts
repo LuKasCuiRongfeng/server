@@ -38,65 +38,15 @@ export function uploadFile(
         slices,
     });
 
-    const axiosPromissArr = [];
+    const form = new FormData();
+    form.append("file", createReadStream(filePath));
 
-    const read = (i: number) => {
-        const end = Math.min(fileSize, (i + 1) * chunkSize);
-        const arr = [];
-
-        let curSize = 0;
-
-        const readStream = createReadStream(filePath, {
-            start: i * chunkSize,
-            end: end - 1,
-        });
-
-        readStream.on("data", data => {
-            arr.push(data);
-            curSize += data.length;
-        });
-
-        readStream.on("end", () => {
-            // 读完一份，发给渲染进程
-            // win.webContents.send(IpcChannel.FILE_UPLOAD, {
-            //     fileName,
-            //     fileSize,
-            //     slices,
-            //     curSize,
-            //     chunkIndex: i,
-            //     data: arr,
-            // });
-            // 直接用 axios 上传
-            const form = new FormData();
-            form.append("file", Buffer.from(arr));
-            form.append("fileName", fileName);
-            form.append("chunkIndex", i);
-            form.append("fileSize", fileSize);
-            form.append("slices", slices);
-
-            axiosPromissArr.push(
-                axios.post(uploadURL, form, {
-                    headers: {
-                        ...form.getHeaders(),
-                        "Content-Type": "multipart/form-data",
-                    },
-                })
-            );
-
-            if (i + 1 < slices) {
-                read(i + 1);
-            } else {
-                axios
-                    .all(axiosPromissArr)
-                    .then(res => {
-                        console.log("success");
-                    })
-                    .catch(err => {
-                        console.error(err);
-                    });
-            }
-        });
-    };
-
-    read(0);
+    axios
+        .post(uploadURL, form, {
+            headers: {
+                ...form.getHeaders(),
+            },
+        })
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
 }

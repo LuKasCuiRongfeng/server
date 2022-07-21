@@ -1,6 +1,7 @@
 import { createHmac } from "crypto";
 import { usersConnection } from "../model/FullStack";
 import { MiddleWare, User } from "../types";
+import busboy from "busboy";
 
 export const login: MiddleWare = async (req, res) => {
     try {
@@ -136,9 +137,26 @@ const totalBlob = [];
 
 export const uploadAvatar: MiddleWare = async (req, res) => {
     try {
-        const body = req.body;
-
-        console.log(body);
+        const _busboy = busboy({ headers: req.headers });
+        _busboy.on("file", (name, file, { filename, encoding, mimeType }) => {
+            console.log(
+                `File [${name}]: filename: %j, encoding: %j, mimeType: %j`,
+                filename,
+                encoding,
+                mimeType
+            );
+            file.on("data", data => {
+                console.log(`File [${name}] got ${data.length} bytes`);
+            }).on("close", () => {
+                console.log(`File [${name}] done`);
+            });
+        });
+        _busboy.on("close", () => {
+            console.log("Done parsing form!");
+            res.writeHead(303, { Connection: "close", Location: "/" });
+            res.end();
+        });
+        req.pipe(_busboy);
     } catch (err) {
         res.send({ status: "failed", error: err.error });
     }
