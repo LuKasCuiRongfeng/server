@@ -1,5 +1,6 @@
 import { dialog, ipcMain } from "electron";
 import Store from "electron-store";
+import { statSync } from "fs";
 import { URL } from "./core/url";
 import { uploadFile } from "./core/utils";
 import {
@@ -107,17 +108,37 @@ export default class App {
                         filters,
                         properties: ["openFile", "dontAddToRecent"],
                     });
-                    const filePaths = res.filePaths;
+
+                    if (res.canceled) {
+                        return {
+                            canceled: true,
+                        };
+                    }
+
+                    const filepath = res.filePaths[0];
+
+                    const size = statSync(filepath).size;
+
+                    if (size > 100 * 1024) {
+                        // 超过 100kB 返回错误信息
+                        return {
+                            error: "图片大小超过100kB",
+                            size,
+                            filepath,
+                        };
+                    }
 
                     const result = await uploadFile({
-                        filepath: filePaths[0],
+                        filepath,
                         url,
                         name,
                     });
 
-                    console.log(result.data.error);
-
-                    return filePaths;
+                    return {
+                        error: "",
+                        size,
+                        filepath,
+                    };
                 } catch (err) {
                     console.error(err);
                 }

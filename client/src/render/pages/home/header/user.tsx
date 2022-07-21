@@ -1,4 +1,3 @@
-import { HOST } from "@/core/const";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IpcChannel } from "@main/ipc";
 import { Avatar, Dropdown, Menu, message, Modal } from "antd";
@@ -18,7 +17,7 @@ const UserSet = () => {
                         type: "home/setUser",
                         payload: {
                             ...user,
-                            avatar: `http://${HOST}${res.data.data}`,
+                            avatar: res.data.data,
                         },
                     });
                 } else {
@@ -51,7 +50,7 @@ const UserSet = () => {
                         key: "userset",
                         parent: "home",
                         browserWindowConstructorOptions: {
-                            width: 500,
+                            width: 800,
                             height: 500,
                             modal: true,
                         },

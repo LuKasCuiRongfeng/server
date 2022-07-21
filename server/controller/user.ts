@@ -124,12 +124,21 @@ export const getAvatar: MiddleWare = async (req, res) => {
             const rs = createReadStream(
                 resolve(__dirname, `../assets/avatar/${user.avatar}`)
             );
-            rs.on("data", chunk => chunks.push(chunk));
-            res.send({
-                status: "success",
-                error: "",
-                data: `/static/avatar/${user.avatar}`,
-            });
+            rs.on("data", chunk => chunks.push(chunk))
+                .on("error", err => {
+                    res.send({ status: "success", error: err });
+                })
+                .on("end", () => {
+                    const base64 =
+                        "data:image/png;base64," +
+                        Buffer.concat(chunks).toString("base64");
+
+                    res.send({
+                        status: "success",
+                        error: "",
+                        data: base64,
+                    });
+                });
         } else {
             res.send({
                 status: "failed",
@@ -158,17 +167,17 @@ export const uploadAvatar: MiddleWare = async (req, res) => {
 
         _busboy.on("file", (name, file, { filename, encoding, mimeType }) => {
             fileName = filename;
-            console.log("filename", fileName, file.readableLength);
             file.pipe(
                 createWriteStream(
                     resolve(__dirname, "../assets/avatar", fileName)
                 )
             );
-            file.on("data", data => {
-                console.log(11);
-            }).on("close", () => {
-                console.log(11);
-            });
+            // file.on("data", data => {
+            //     console.log(11);
+            // }).on("close", () => {
+            //     console.log(11);
+            // });
+            file.on("error", err => console.error(err));
         });
 
         _busboy.on("close", async () => {
