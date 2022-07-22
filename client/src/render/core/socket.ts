@@ -7,6 +7,7 @@ interface ServerToClientEvents {
     "add-friend-request": (stranger: string) => void;
     "private-chat": (msg: string, friend: string) => void;
     "permit-add-friend": (friend: string) => void;
+    "file-upload-progress": (length: number) => void;
 }
 
 interface ClientToServerEvents {

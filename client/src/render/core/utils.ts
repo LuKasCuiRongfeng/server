@@ -76,3 +76,8 @@ export function timeFormatter(formatterOption?: FormatterOption) {
             return dayStart.from(dayEnd);
     }
 }
+
+/** 产生一个随机的的唯一的 hash id */
+export function generateHash() {
+    return "_" + Math.random().toString(36).slice(2, 9);
+}

@@ -2,8 +2,9 @@ import { createHmac } from "crypto";
 import { usersConnection } from "../model/FullStack";
 import { MiddleWare, User } from "../types";
 import busboy from "busboy";
-import { dirname, extname, resolve } from "path";
+import { basename, dirname, extname, resolve } from "path";
 import { createReadStream, createWriteStream } from "fs";
+import { findSockets } from "../app";
 
 export const login: MiddleWare = async (req, res) => {
     try {
@@ -121,7 +122,7 @@ export const getAvatar: MiddleWare = async (req, res) => {
             // 转base64
             const chunks = [];
             const rs = createReadStream(
-                resolve(__dirname, `../assets/avatar/${user.avatar}`)
+                resolve(__dirname, `../public/avatar/${user.avatar}`)
             );
             rs.on("data", chunk => chunks.push(chunk))
                 .on("error", err => {
@@ -164,19 +165,29 @@ export const uploadAvatar: MiddleWare = async (req, res) => {
             }
         });
 
-        _busboy.on("file", (name, file, { filename, encoding, mimeType }) => {
+        _busboy.on("file", (name, file, { filename }) => {
             fileName = filename;
+            const chunks = [];
             file.pipe(
                 createWriteStream(
-                    resolve(__dirname, "../assets/avatar", fileName)
+                    resolve(__dirname, "../public/avatar", fileName)
                 )
             );
-            // file.on("data", data => {
-            //     console.log(11);
-            // }).on("close", () => {
-            //     console.log(11);
-            // });
-            file.on("error", err => console.error(err));
+            file.on("data", data => {
+                // 通过 socket 发送上传进度
+                chunks.push(data);
+                const sockets = findSockets(basename(filename, ".png"));
+                sockets.forEach(el => {
+                    el.emit(
+                        "file-upload-progress",
+                        Buffer.concat(chunks).length
+                    );
+                });
+            })
+                .on("close", () => {
+                    console.log(11);
+                })
+                .on("error", err => console.error(err));
         });
 
         _busboy.on("close", async () => {

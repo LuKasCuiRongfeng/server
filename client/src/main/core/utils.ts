@@ -39,5 +39,5 @@ export async function uploadFile(options: {
         },
     });
 
-    return res;
+    return res.data;
 }

@@ -100,10 +100,19 @@ export default class App {
             return userInfo;
         });
 
-        ipcMain.handle(
-            IpcChannel.OPEN_DIALOG,
-            async (e, { filters, url, name }) => {
-                try {
+        ipcMain.handle(IpcChannel.FILE_STAT, (e, filepath) => {
+            try {
+                return statSync(filepath);
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        ipcMain.handle(IpcChannel.FILE_UPLOAD, async (e, { stat, upload }) => {
+            try {
+                if (stat) {
+                    // 只是统计
+                    const { filters, maxSize = 100 * 1024 * 1024 } = stat;
                     const res = await dialog.showOpenDialog({
                         buttonLabel: "确定",
                         filters,
@@ -118,32 +127,35 @@ export default class App {
 
                     const filepath = res.filePaths[0];
 
-                    const size = statSync(filepath).size;
+                    let error = "";
 
-                    if (size > 100 * 1024) {
-                        // 超过 100kB 返回错误信息
-                        return {
-                            error: "图片大小超过100kB",
-                            size,
-                            filepath,
-                        };
+                    const filesize = statSync(filepath).size;
+
+                    if (filesize > maxSize) {
+                        error = "图片大小超过限制尺寸";
                     }
 
-                    const result = await uploadFile({
+                    return {
+                        filesize,
+                        filepath,
+                        error,
+                        canceled: false,
+                    };
+                }
+                if (upload) {
+                    const { filepath, url, name } = upload;
+                    const res = await uploadFile({
                         filepath,
                         url,
                         name,
                     });
 
-                    return {
-                        error: "",
-                        size,
-                        filepath,
-                    };
-                } catch (err) {
-                    console.error(err);
+                    return res;
                 }
+                return { error: "文件错误" };
+            } catch (err) {
+                console.error(err);
             }
-        );
+        });
     }
 }

@@ -81,7 +81,7 @@ const FriendsList = (props: Props) => {
     const addUnreadMsg = (msg: Msg) => {
         const _map = new Map([...unReadMap]);
         const unreadLines = _map.get(msg.name) || [];
-        unreadLines.unshift(msg);
+        unreadLines.push(msg);
         _map.set(msg.name, unreadLines);
         setUnreadMap(_map);
     };

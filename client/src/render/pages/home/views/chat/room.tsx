@@ -1,11 +1,12 @@
 import socket from "@/core/socket";
 import { classnames, timeFormatter } from "@/core/utils";
 import { useAppSelector } from "@/store/hooks";
-import { Input } from "antd";
+import { Avatar, Input } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMemoizedFn } from "ahooks";
 import dayjs, { Dayjs } from "dayjs";
+import { getAvatar } from "../../api";
 
 type Props = {
     isPrivate: boolean;
@@ -24,6 +25,9 @@ const Room = (props: Props) => {
     const { isPrivate, members, addUnreadLine, unreadLines } = props;
     const [msg, setMsg] = useState("");
     const [lines, setLines] = useState<Msg[]>([]);
+    const [friendAvatar, setFriendAvatar] = useState("");
+
+    const roomBodyRef = useRef<HTMLDivElement>();
 
     const { t } = useTranslation();
 
@@ -31,7 +35,6 @@ const Room = (props: Props) => {
 
     const socketCb = useMemoizedFn((msg, friend) => {
         // 判断当前是否是正在聊天的对象
-        console.log(111);
         if (members.includes(friend)) {
             // 是正在聊天的对象
             setLines([...lines, { name: friend, date: dayjs(), msg }]);
@@ -43,6 +46,7 @@ const Room = (props: Props) => {
 
     useEffect(() => {
         socket.on("private-chat", socketCb);
+
         return () => {
             socket.off("private-chat");
         };
@@ -51,6 +55,30 @@ const Room = (props: Props) => {
     useEffect(() => {
         setLines([...lines, ...unreadLines]);
     }, [unreadLines]);
+
+    useEffect(() => {
+        if (members.length === 0) {
+            return;
+        }
+        getAvatar(members[0]).then(res => {
+            if (res.data.status === "success") {
+                setFriendAvatar(res.data.data);
+            }
+        });
+    }, [members]);
+
+    useEffect(() => {
+        roomBodyRef.current.scrollTop = roomBodyRef.current.scrollHeight;
+    }, [lines]);
+
+    const renderAvatar = (line: Msg) => {
+        const name = line.name === user.name ? user.name : members[0];
+        const avatar = line.name === user.name ? user.avatar : friendAvatar;
+        return {
+            name: name.slice(0, 3),
+            avatar,
+        };
+    };
 
     const renderMsgLine = (line: Msg) => {
         return (
@@ -62,7 +90,11 @@ const Room = (props: Props) => {
             >
                 <div
                     className={classnames("chat-right-panel-body-line-avtator")}
-                ></div>
+                >
+                    <Avatar size={50} src={renderAvatar(line).avatar}>
+                        {renderAvatar(line).name}
+                    </Avatar>
+                </div>
                 <div
                     className={classnames("chat-right-panel-body-line-content")}
                 >
@@ -94,7 +126,7 @@ const Room = (props: Props) => {
     };
     return (
         <div className={classnames("chat-right-panel")}>
-            {members.length === 0 ? (
+            {/* {members.length === 0 ? (
                 "什么也没有, 点击列表开始聊天吧"
             ) : (
                 <>
@@ -122,7 +154,31 @@ const Room = (props: Props) => {
                         {lines.map(line => renderMsgLine(line))}
                     </div>
                 </>
-            )}
+            )} */}
+            <>
+                <div className={classnames("chat-right-panel-send")}>
+                    <Input
+                        value={msg}
+                        placeholder={t("发送消息")}
+                        onChange={e => setMsg(e.target.value)}
+                        onKeyUp={e => sendMsg(e.key)}
+                        suffix={
+                            <span style={{ color: "var(--gray-6)" }}>
+                                enter
+                            </span>
+                        }
+                    />
+                </div>
+                <div
+                    ref={roomBodyRef}
+                    className={classnames("chat-right-panel-body")}
+                >
+                    <div className={classnames("chat-right-panel-body-title")}>
+                        {members.join(", ")}
+                    </div>
+                    {lines.map(line => renderMsgLine(line))}
+                </div>
+            </>
         </div>
     );
 };
