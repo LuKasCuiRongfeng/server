@@ -40,7 +40,6 @@ export const register: MiddleWare = async (req, res) => {
         } else {
             const result = await usersConnection.insertOne({
                 ...body,
-                userId: createHmac("sha256", body.name).digest("hex"),
                 friends: [],
                 avatar: "",
             });

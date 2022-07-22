@@ -1,4 +1,5 @@
 import { ElectronWindow } from "@/components";
+import socket from "@/core/socket";
 import { useAppDispatch } from "@/store/hooks";
 import { IpcChannel } from "@main/ipc";
 import React, { useEffect } from "react";

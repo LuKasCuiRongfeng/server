@@ -4,7 +4,6 @@ export type User = {
     name?: string;
     nickName?: string;
     password?: string;
-    userId?: string;
     friends?: string[];
     avatar?: string;
 };
@@ -25,6 +24,7 @@ export interface ServerToClientEvents {
     "add-friend-request": (me: string) => void;
     "private-chat": (msg: string, me: string) => void;
     "permit-add-friend": (me: string) => void;
+    "test:socket": (msg: string) => void;
 }
 
 export interface ClientToServerEvents {
@@ -32,6 +32,7 @@ export interface ClientToServerEvents {
     "private-chat": (msg: string, me: string, members: string[]) => void;
     "name:socketId": (name: string, socketId: string) => void;
     "permit-add-friend": (friend: string, me: string) => void;
+    "test:socket": (msg: string) => void;
 }
 
 export interface InterServerEvents {

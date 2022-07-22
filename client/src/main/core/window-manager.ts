@@ -18,6 +18,8 @@ export interface WinConstructorOptions {
     data?: WinData;
     /** 父窗口的key */
     parent?: string;
+    /** 如果提供 laodURL, 加载此url */
+    loadURL?: string;
     /** 是否禁用默认的关闭行为，default false */
     preventDefaultClose?: boolean;
     /** 是否打开开发者工具，default false */
@@ -48,6 +50,7 @@ export class WindowManager {
             key,
             data,
             parent,
+            loadURL,
             openDevTools = false,
             preventDefaultClose = false,
             browserWindowConstructorOptions,
@@ -77,13 +80,9 @@ export class WindowManager {
 
         this.wins.set(key, win);
 
-        // 设置父窗口
-        // if (parent != undefined) {
-        //     const parentWin = this.getWin(parent);
-        //     parentWin && win.setParentWindow(parentWin);
-        // }
+        const _loadURL = loadURL ? loadURL : this.app.URL.getLoadURL(key);
 
-        win.loadURL(this.app.URL.getLoadURL(key));
+        win.loadURL(_loadURL);
 
         win.on("ready-to-show", () => {
             win.show();

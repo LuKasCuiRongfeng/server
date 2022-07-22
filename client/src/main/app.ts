@@ -81,6 +81,7 @@ export default class App {
                 this.windowManager.destroy("home");
                 return;
             }
+            console.log(args.name);
             this.store.set({
                 name: args.name,
                 startDate: Date.now(),

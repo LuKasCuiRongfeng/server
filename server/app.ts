@@ -16,7 +16,7 @@ const PORT = 2000;
 const app = express();
 app.use(
     cors({
-        origin: "http://localhost:12345",
+        origin: "*",
     })
 );
 
@@ -36,48 +36,69 @@ const io = new Server<
     SocketData
 >(httpServer, {
     cors: {
-        origin: "http://localhost:12345",
+        origin: "*",
     },
 });
 
-const connectSocketMap: Map<string, string> = new Map();
+// const connectSocketMap: Map<string, string> = new Map();
+
+/** 打开多个窗口，可能会造成多个 socketId */
+function findSockets(name: string) {
+    const sockets = [...io.sockets.sockets.values()].filter(
+        socket => socket.data.name === name
+    );
+    console.log("size", io.sockets.sockets.size, sockets.length);
+    return sockets;
+}
 
 io.on("connection", socket => {
     console.log("连接上了 ...", socket.id);
+
     socket.on("private-chat", (msg, me, members) => {
-        const socketId = connectSocketMap.get(members[0]);
-        socket.to(socketId).emit("private-chat", msg, me);
+        // console.log("private-chat", msg, me, members);
+        // const socketId = connectSocketMap.get(members[0]);
+        // socket.to(socketId).emit("private-chat", msg, me);
+
+        const sockets = findSockets(members[0]);
+        sockets.forEach(el => {
+            console.log(el.id, msg, me);
+            el.emit("private-chat", msg, me);
+        });
     });
 
     socket.on("name:socketId", (name, socketId) => {
         // 连接上后把 name 和socketId 保存下来
         console.log("name:socketId: ", name, socketId);
-        connectSocketMap.set(name, socketId);
+        socket.data.name = name;
+        // connectSocketMap.set(name, socketId);
     });
 
     socket.on("add-friend-request", (friend, me) => {
-        console.log(friend, me);
-        const socketId = connectSocketMap.get(friend);
-        console.log(
-            "friend socketid: ",
-            socketId,
-            JSON.stringify(connectSocketMap)
-        );
-        if (socketId) {
-            socket.to(socketId).emit("add-friend-request", me);
-        }
+        // const socketId = connectSocketMap.get(friend);
+        // console.log("add-friend-request", friend, me, socketId);
+        // if (socketId) {
+        //     socket.to(socketId).emit("add-friend-request", me);
+        // }
+        const sockets = findSockets(friend);
+        sockets.forEach(el => {
+            socket.to(el.id).emit("add-friend-request", me);
+        });
     });
 
     socket.on("permit-add-friend", (friend, me) => {
-        const socketId = connectSocketMap.get(friend);
-        console.log("permit socket: ", socketId);
-        if (socketId) {
-            socket.to(socketId).emit("permit-add-friend", me);
-        }
+        // const socketId = connectSocketMap.get(friend);
+        // console.log("permit-add-friend", friend, me, socketId);
+        // if (socketId) {
+        //     socket.to(socketId).emit("permit-add-friend", me);
+        // }
+        const sockets = findSockets(friend);
+        sockets.forEach(el => {
+            socket.to(el.id).emit("permit-add-friend", me);
+        });
     });
 
     socket.on("disconnect", reason => {
-        console.log("server socket disconnected: ", reason);
+        console.log("server socket disconnected: ", socket.id, reason);
     });
 });
 

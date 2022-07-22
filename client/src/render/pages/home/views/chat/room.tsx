@@ -31,7 +31,7 @@ const Room = (props: Props) => {
 
     const socketCb = useMemoizedFn((msg, friend) => {
         // 判断当前是否是正在聊天的对象
-        console.log(members);
+        console.log(111);
         if (members.includes(friend)) {
             // 是正在聊天的对象
             setLines([...lines, { name: friend, date: dayjs(), msg }]);

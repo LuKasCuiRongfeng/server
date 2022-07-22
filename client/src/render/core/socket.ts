@@ -16,9 +16,7 @@ interface ClientToServerEvents {
     "permit-add-friend": (friend: string, me: string) => void;
 }
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-    `ws://${HOST}`
-);
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
 
 socket.on("connect", async () => {
     console.log("socket connected@: ", socket.id);
