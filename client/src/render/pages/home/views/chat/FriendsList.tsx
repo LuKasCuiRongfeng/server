@@ -142,6 +142,38 @@ const FriendsList = (props: Props) => {
             message.error(res.data.error);
         }
     };
+
+    const renderStranges = (strangers: string[]) => {
+        if (strangers.length === 0) {
+            return <div></div>;
+        }
+        return (
+            <List
+                dataSource={strangers}
+                renderItem={el => (
+                    <List.Item
+                        key={el}
+                        actions={[
+                            <span
+                                key="addmit"
+                                onClick={() => onClickAddmit(el)}
+                            >
+                                同意
+                            </span>,
+                        ]}
+                    >
+                        <List.Item.Meta
+                            title={
+                                <span style={{ color: "var(--dust-red)" }}>
+                                    {"陌生人 " + el}
+                                </span>
+                            }
+                        />
+                    </List.Item>
+                )}
+            />
+        );
+    };
     return (
         <div className={classnames("chat-left-panel")}>
             <Input
