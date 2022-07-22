@@ -68,7 +68,9 @@ const Room = (props: Props) => {
     }, [members]);
 
     useEffect(() => {
-        roomBodyRef.current.scrollTop = roomBodyRef.current.scrollHeight;
+        if (roomBodyRef.current) {
+            roomBodyRef.current.scrollTop = roomBodyRef.current.scrollHeight;
+        }
     }, [lines]);
 
     const renderAvatar = (line: Msg) => {
@@ -126,7 +128,7 @@ const Room = (props: Props) => {
     };
     return (
         <div className={classnames("chat-right-panel")}>
-            {/* {members.length === 0 ? (
+            {members.length === 0 ? (
                 "什么也没有, 点击列表开始聊天吧"
             ) : (
                 <>
@@ -143,7 +145,10 @@ const Room = (props: Props) => {
                             }
                         />
                     </div>
-                    <div className={classnames("chat-right-panel-body")}>
+                    <div
+                        ref={roomBodyRef}
+                        className={classnames("chat-right-panel-body")}
+                    >
                         <div
                             className={classnames(
                                 "chat-right-panel-body-title"
@@ -154,31 +159,7 @@ const Room = (props: Props) => {
                         {lines.map(line => renderMsgLine(line))}
                     </div>
                 </>
-            )} */}
-            <>
-                <div className={classnames("chat-right-panel-send")}>
-                    <Input
-                        value={msg}
-                        placeholder={t("发送消息")}
-                        onChange={e => setMsg(e.target.value)}
-                        onKeyUp={e => sendMsg(e.key)}
-                        suffix={
-                            <span style={{ color: "var(--gray-6)" }}>
-                                enter
-                            </span>
-                        }
-                    />
-                </div>
-                <div
-                    ref={roomBodyRef}
-                    className={classnames("chat-right-panel-body")}
-                >
-                    <div className={classnames("chat-right-panel-body-title")}>
-                        {members.join(", ")}
-                    </div>
-                    {lines.map(line => renderMsgLine(line))}
-                </div>
-            </>
+            )}
         </div>
     );
 };
