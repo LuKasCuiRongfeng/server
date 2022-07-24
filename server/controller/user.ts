@@ -1,10 +1,9 @@
 import { usersConnection } from "../model/FullStack";
-import { MiddleWare, User } from "../types";
+import { MiddleWare, Stranger, User } from "../types";
 import busboy from "busboy";
 import { basename, resolve } from "path";
-import { createReadStream, createWriteStream } from "fs";
+import { createWriteStream } from "fs";
 import { findSockets } from "../app";
-import { omit } from "lodash";
 
 export const login: MiddleWare = async (req, res) => {
     try {
@@ -15,10 +14,11 @@ export const login: MiddleWare = async (req, res) => {
         });
 
         if (user != null) {
+            // 登录页只返回 name，其他量需要调用接口去请求
             res.send({
                 status: "success",
                 error: "",
-                data: omit(user, ["password"]),
+                data: user.name,
             });
             return;
         }
@@ -52,19 +52,21 @@ export const register: MiddleWare = async (req, res) => {
     }
 };
 
-export const friends: MiddleWare = async (req, res) => {
+export const getUser: MiddleWare = async (req, res) => {
     try {
-        const qs = req.query;
-        const user = await usersConnection.findOne<User>({ name: qs.name });
+        const { name } = req.query;
+        const user = await usersConnection.findOne<User>({ name });
 
         if (user != null) {
+            const { name, nickName, friends, strangers, avatar } = user;
             res.send({
                 status: "success",
                 error: "",
-                data: { friends: user.friends, strangers: user.strangers },
+                data: { name, nickName, friends, strangers, avatar },
             });
             return;
         }
+
         res.send({ status: "failed", error: "用户不存在" });
     } catch (err) {
         res.send({ status: "failed", error: err.error });
@@ -73,31 +75,32 @@ export const friends: MiddleWare = async (req, res) => {
 
 export const addFriendRequest: MiddleWare = async (req, res) => {
     try {
-        const body = req.body;
-        const friend = await usersConnection.findOne<User>({
-            name: body.friend,
+        const { friend, me } = req.body as { friend: string; me: Stranger };
+
+        const _friend = await usersConnection.findOne<User>({
+            name: friend,
         });
-        if (friend == null) {
+        if (_friend == null) {
             res.send({ status: "failed", error: "搜索的用户不存在" });
             return;
         }
         // 去更新朋友的陌生人列表
         await usersConnection.updateOne(
             {
-                name: friend.name,
+                name: friend,
             },
             {
                 $set: {
-                    strangers: [...friend.strangers, body.me],
+                    strangers: [..._friend.strangers, me],
                 },
             }
         );
 
         // 发一个消息，让对方去更新一下陌生人列表，不管在没在线
-        const sockets = findSockets(friend.name);
+        const sockets = findSockets(friend);
 
         sockets.forEach(socket => {
-            socket.emit("add-friend-request", body.me);
+            socket.emit("add-friend-request", me);
         });
 
         res.send({ status: "success", error: "" });
@@ -109,34 +112,37 @@ export const addFriendRequest: MiddleWare = async (req, res) => {
 // 同意后更新双方的好友表
 export const permitFriend: MiddleWare = async (req, res) => {
     try {
-        const { me, friend } = req.body;
-        const _me = await usersConnection.findOne<User>({ name: me.name });
+        const { me, friend } = req.body as { me: string; friend: string };
+        const _me = await usersConnection.findOne<User>({ name: me });
         const _friend = await usersConnection.findOne<User>({
-            name: friend.name,
+            name: friend,
         });
         if (!_me || !_friend) {
             res.send({ status: "failed", error: "用户不存在" });
             return;
         }
         // 更新friends，并且我的陌生人列表 -1
+        const strangers = _me.strangers.filter(el => el.name !== friend);
+
         await usersConnection.updateOne(
             {
                 name: me,
             },
             {
-                $set: { friends: [..._me.friends, friend] },
+                $set: { friends: [..._me.friends, friend], strangers },
             }
         );
         await usersConnection.updateOne(
             {
-                name: friend.name,
+                name: friend,
             },
             {
                 $set: { friends: [..._friend.friends, me] },
             }
         );
         // 发一个消息，让朋友刷新一下
-        const sockets = findSockets(friend.name);
+        const sockets = findSockets(friend);
+
         sockets.forEach(socket => {
             socket.emit("permit-add-friend", me);
         });
@@ -157,21 +163,23 @@ export const getAvatar: MiddleWare = async (req, res) => {
         }
 
         // 转base64
-        const chunks = [];
-        const rs = createReadStream(
-            resolve(__dirname, `../public/avatar/${user.avatar}`)
-        );
-        rs.on("data", chunk => chunks.push(chunk))
-            .on("error", err => {
-                res.send({ status: "success", error: err });
-            })
-            .on("end", () => {
-                const base64 =
-                    "data:image/png;base64," +
-                    Buffer.concat(chunks).toString("base64");
+        // const chunks = [];
+        // const rs = createReadStream(
+        //     resolve(__dirname, `../public/avatar/${user.avatar}`)
+        // );
+        // rs.on("data", chunk => chunks.push(chunk))
+        //     .on("error", err => {
+        //         res.send({ status: "success", error: err });
+        //     })
+        //     .on("end", () => {
+        //         const base64 =
+        //             "data:image/png;base64," +
+        //             Buffer.concat(chunks).toString("base64");
 
-                res.send({ status: "success", error: "", data: base64 });
-            });
+        //         res.send({ status: "success", error: "", data: base64 });
+        //     });
+        // 直接返回静态托管的地址
+        res.send({ status: "success", data: user.avatar });
     } catch (err) {
         res.send({ status: "failed", error: err.error });
     }

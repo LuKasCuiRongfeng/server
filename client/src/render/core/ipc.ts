@@ -1,7 +1,6 @@
 import store from "@/store";
 import {
     FileUpload,
-    SafeUser,
     FileFilter,
     OpenDialogReturn,
     CommonResponse,
@@ -25,8 +24,8 @@ export async function userExit() {
 }
 
 /** 用户登录 */
-export async function windowLogin(data: SafeUser) {
-    window.ipcRenderer.send(IpcChannel.WINDOW_LOGIN, data);
+export async function windowLogin(name: string) {
+    window.ipcRenderer.send(IpcChannel.WINDOW_LOGIN, { name });
 }
 
 /** 创建窗口 */

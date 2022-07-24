@@ -1,3 +1,4 @@
+import { HOST } from "@/core/const";
 import {
     crossWinSendMsg,
     openDialog,
@@ -8,7 +9,7 @@ import socket from "@/core/socket";
 import { classnames } from "@/core/utils";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { Avatar, message } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getAvatar } from "../home/api";
 
 const AccountSet = () => {
@@ -17,6 +18,10 @@ const AccountSet = () => {
     const user = useAppSelector(state => state.userset.user);
 
     const dispatch = useAppDispatch();
+
+    const avatar = useMemo(() => {
+        return `${HOST}/static/avatar/${user.avatar}`;
+    }, [user]);
 
     useEffect(() => {
         socket.on("file-upload-progress", length => {
@@ -52,7 +57,6 @@ const AccountSet = () => {
         } = await getAvatar(user.name);
 
         if (status === "success") {
-            await setLocalStore({ user: { ...user, avatar: data } });
             dispatch({
                 type: "userset/setUser",
                 payload: { ...user, avatar: data },
@@ -71,7 +75,7 @@ const AccountSet = () => {
         <div className={classnames("user-set-content-set")}>
             <div className={classnames("user-set-content-set-avatar")}>
                 <Avatar
-                    src={user.avatar}
+                    src={avatar}
                     size={80}
                     style={{ backgroundColor: "var(--lime-nature)" }}
                 >

@@ -1,9 +1,9 @@
-import { SafeUser, Stranger } from "@/types";
+import { Stranger, User } from "@/types";
 import { request } from "../../core/service";
 
-export function getFriends(name: string) {
-    return request<{ data: { friends: SafeUser[]; strangers: Stranger[] } }>({
-        url: "/user/friends",
+export function getUser(name: string) {
+    return request<{ data: User }>({
+        url: "/user/getuser",
         params: { name },
     });
 }
@@ -16,7 +16,7 @@ export function addFriendRequest(data: { me: Stranger; friend: string }) {
     });
 }
 
-export function permitFriend(data: { me: SafeUser; friend: SafeUser }) {
+export function permitFriend(data: { me: string; friend: string }) {
     return request({
         url: "/user/permitfriend",
         method: "post",

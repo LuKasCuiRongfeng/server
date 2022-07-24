@@ -1,8 +1,8 @@
 import express from "express";
 import {
     addFriendRequest,
-    friends,
     getAvatar,
+    getUser,
     login,
     permitFriend,
     register,
@@ -16,11 +16,11 @@ export function userRouter() {
 
     router.post("/register", register);
 
-    router.get("/friends", friends);
+    router.get("/getuser", getUser);
 
     router.post("/addfriendrequest", addFriendRequest);
 
-    router.get("/permitfriend", permitFriend);
+    router.post("/permitfriend", permitFriend);
 
     router.get("/getavatar", getAvatar);
 

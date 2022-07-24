@@ -1,31 +1,27 @@
-import { Dayjs } from "dayjs";
 export interface CommonResponse {
     status: "success" | "failed";
     error: string;
 }
 
 export type User = {
-    name?: string;
+    name: string;
     nickName?: string;
     password?: string;
-    friends?: SafeUser[];
+    friends?: string[];
     /** 带问候语的strangers */
     strangers?: Stranger[];
     avatar?: string;
 };
 
-export type SafeUser = Omit<User, "password" | "friends" | "strangers">;
-
-export type Stranger = SafeUser & { hello?: string };
+export type Stranger = { name: string; hello?: string };
 
 export type Msg = {
     name: string;
-    date: Dayjs;
+    /** 时间，毫秒 */
+    date: number;
     msg: string;
     unread?: boolean;
 };
-
-export type SuperUser = SafeUser & { unreadLines?: Msg[]; readLines?: Msg[] };
 
 export type FileUpload = {
     /** 上传用户 */

@@ -4,17 +4,17 @@ import App from "../app";
 import { createHomeWin } from "./home";
 
 export async function createLoginWin(app: App) {
-    const user = app.store.get("user") as any;
-    if (user != undefined) {
-        const startDate = user.startDate as number;
+    const user = app.store.get("name");
+    const startDate = app.store.get("startDate") as number;
+    if (user != undefined && Date.now() - startDate < MAX_AGE) {
         // 登录过且未过期，直接进入主页
-        if (Date.now() - startDate < MAX_AGE) {
-            await createHomeWin(app);
-            return;
-        }
+        await createHomeWin(app);
+        return;
     }
 
-    app.store.delete("user");
+    app.store.delete("name");
+    app.store.delete("startDate");
+    app.store.delete("theme");
 
     const win = app.windowManager.createWin({
         key: "login",

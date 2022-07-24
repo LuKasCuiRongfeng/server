@@ -49,7 +49,7 @@ export function findSockets(name: string) {
 
 io.on("connection", socket => {
     socket.on("private-chat", (msg, me, members) => {
-        const sockets = findSockets(members[0].name);
+        const sockets = findSockets(members[0]);
         sockets.forEach(el => {
             el.emit("private-chat", msg, me);
         });
@@ -58,13 +58,6 @@ io.on("connection", socket => {
     socket.on("name:socketId", name => {
         // name 标记 socketId
         socket.data.name = name;
-    });
-
-    socket.on("permit-add-friend", (friend, me) => {
-        const sockets = findSockets(friend.name);
-        sockets.forEach(el => {
-            socket.to(el.id).emit("permit-add-friend", me);
-        });
     });
 
     socket.on("disconnect", reason => {

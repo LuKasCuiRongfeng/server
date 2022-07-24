@@ -86,14 +86,22 @@ export default class App {
 
         ipcMain.on(IpcChannel.WINDOW_LOGIN, async (e, args) => {
             try {
-                if (args.exit === true) {
+                const { name, exit } = args;
+                if (exit === true) {
                     // 退出登录
-                    this.store.delete("user");
+                    this.store.delete("name");
+                    this.store.delete("startDate");
+                    this.store.delete("theme");
                     await createLoginWin(this);
                     this.windowManager.destroy("home");
                     return;
                 }
-                this.store.set("user", { ...args, startDate: Date.now() });
+
+                this.store.set({
+                    name,
+                    startDate: Date.now(),
+                    theme: "dark",
+                });
                 // 登录成功，关闭login窗口，打开主窗口
                 await createHomeWin(this);
                 this.windowManager.destroy("login");

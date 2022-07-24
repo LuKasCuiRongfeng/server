@@ -1,21 +1,21 @@
-import { Msg, SafeUser, Stranger } from "@/types";
+import { Msg, Stranger } from "@/types";
 import { io, Socket } from "socket.io-client";
 import { HOST } from "./const";
 import { getLocalStore } from "./ipc";
 
 // socket
 interface ServerToClientEvents {
-    "add-friend-request": (strangers: Stranger) => void;
-    "private-chat": (msg: Msg, friend: SafeUser) => void;
-    "permit-add-friend": (friend: SafeUser) => void;
+    "add-friend-request": (stranger: Stranger) => void;
+    "private-chat": (msg: Msg, friend: string) => void;
+    "permit-add-friend": (friend: string) => void;
     "file-upload-progress": (length: number) => void;
 }
 
 interface ClientToServerEvents {
-    "add-friend-request": (strangers: string, me: Stranger) => void;
-    "private-chat": (msg: Msg, me: SafeUser, members: SafeUser[]) => void;
+    "add-friend-request": (stranger: string, me: Stranger) => void;
+    "private-chat": (msg: Msg, me: string, members: string[]) => void;
     "name:socketId": (name: string) => void;
-    "permit-add-friend": (friend: SafeUser, me: SafeUser) => void;
+    "permit-add-friend": (friend: string, me: string) => void;
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);

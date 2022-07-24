@@ -6,13 +6,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMemoizedFn } from "ahooks";
 import dayjs from "dayjs";
-import { Msg, SafeUser } from "@/types";
+import { Msg } from "@/types";
+import { getUser } from "../../api";
+import { HOST } from "@/core/const";
 
 type Props = {
     isPrivate: boolean;
-    members: SafeUser[];
+    members: string[];
     updateChatLog: (
-        friend: SafeUser,
+        friend: string,
         msg?: Msg,
         removeUnRead?: boolean
     ) => Promise<void>;
@@ -23,6 +25,8 @@ const Room = (props: Props) => {
     const [msg, setChatMsg] = useState("");
     const [lines, setLines] = useState<Msg[]>([]);
 
+    const [friendAvatar, setFriendAvatar] = useState("");
+
     const roomBodyRef = useRef<HTMLDivElement>();
 
     const { t } = useTranslation();
@@ -31,10 +35,10 @@ const Room = (props: Props) => {
 
     const chatLog = useAppSelector(state => state.home.chatLog);
 
-    const socketCb = useMemoizedFn(async (msg: Msg, friend: SafeUser) => {
+    const socketCb = useMemoizedFn(async (msg: Msg, friend: string) => {
         // 判断当前是否是正在聊天的对象
         const _msg = { ...msg };
-        const current = members.find(el => el.name === friend.name);
+        const current = members.find(el => el === friend);
         if (current != null) {
             // 是正在聊天的对象
             _msg.unread = false;
@@ -58,11 +62,17 @@ const Room = (props: Props) => {
             return;
         }
         const friend = members[0];
-        const chatHistory = chatLog[friend.name]?.chatHistory;
+        const chatHistory = chatLog[friend] || [];
         if (chatHistory) {
             setLines(chatHistory);
         }
-    }, [members]);
+        getUser(members[0]).then(res => {
+            const {
+                data: { data },
+            } = res;
+            setFriendAvatar(data.avatar);
+        });
+    }, [members, chatLog]);
 
     useEffect(() => {
         if (roomBodyRef.current) {
@@ -71,12 +81,11 @@ const Room = (props: Props) => {
     }, [lines]);
 
     const renderAvatar = (line: Msg) => {
-        const name = line.name === user.name ? user.name : members[0].name;
-        const avatar =
-            line.name === user.name ? user.avatar : members[0].avatar;
+        const name = line.name === user.name ? user.name : members[0];
+        const avatar = line.name === user.name ? user.avatar : friendAvatar;
         return {
             name: name.slice(0, 3),
-            avatar,
+            avatar: `${HOST}/static/avatar/${avatar}`,
         };
     };
 
@@ -103,7 +112,7 @@ const Room = (props: Props) => {
                             "chat-right-panel-body-line-content-time"
                         )}
                     >
-                        {timeFormatter({ dayStart: line.date })}
+                        {timeFormatter({ dayStart: dayjs(line.date) })}
                     </span>
                     <span
                         className={classnames(
@@ -123,12 +132,12 @@ const Room = (props: Props) => {
             // 更新本地和redux
             const _msg: Msg = {
                 name: user.name,
-                date: dayjs(),
+                date: Date.now(),
                 msg,
             };
             await updateChatLog(friend, _msg);
 
-            socket.emit("private-chat", _msg, user, members);
+            socket.emit("private-chat", _msg, user.name, members);
 
             setChatMsg("");
         }

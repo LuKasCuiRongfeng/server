@@ -2,8 +2,6 @@ import classNames from "classnames";
 import { CLASS_PREFIX } from "./const";
 import dayjs, { Dayjs } from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { IpcChannel } from "@main/ipc";
-import { SafeUser } from "@/types";
 import { getLocalStore, setLocalStore } from "./ipc";
 
 /** 返回带有前缀 `crf-client-` 的 classname */

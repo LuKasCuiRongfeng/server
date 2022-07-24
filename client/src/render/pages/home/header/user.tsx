@@ -1,10 +1,15 @@
+import { HOST } from "@/core/const";
 import { createWin, userExit } from "@/core/ipc";
 import { useAppSelector } from "@/store/hooks";
 import { Avatar, Dropdown, Menu, Modal } from "antd";
-import React from "react";
+import React, { useMemo } from "react";
 
 const UserSet = () => {
     const user = useAppSelector(state => state.home.user);
+
+    const avatar = useMemo(() => {
+        return `${HOST}/static/avatar/${user.avatar}`;
+    }, [user]);
 
     const menu = (
         <Menu
@@ -29,6 +34,10 @@ const UserSet = () => {
                             height: 500,
                             modal: true,
                         },
+                        data: {
+                            type: "userset/setUser",
+                            payload: user,
+                        },
                     });
                 }
             }}
@@ -37,7 +46,7 @@ const UserSet = () => {
     return (
         <Dropdown overlay={menu}>
             <Avatar
-                src={user.avatar}
+                src={avatar}
                 style={{ backgroundColor: "var(--lime-nature)" }}
             >
                 {user.name?.slice(0, 3)}
