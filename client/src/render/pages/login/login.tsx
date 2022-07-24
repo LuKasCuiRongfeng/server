@@ -1,4 +1,4 @@
-import { IpcChannel } from "@main/ipc";
+import { windowLogin } from "@/core/ipc";
 import { Button, Form, Input, message } from "antd";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -11,13 +11,12 @@ const Login_login: React.FC<Record<string, any>> = () => {
 
     const login = async () => {
         const values = await form.validateFields();
-        const res = await userLogin(values);
         const {
             data: { status, data, error },
-        } = res;
+        } = await userLogin(values);
         if (status === "success") {
             message.success("登录成功");
-            window.ipcRenderer.send(IpcChannel.WINDOW_LOGIN, data);
+            await windowLogin(data);
         } else {
             message.error(error);
         }

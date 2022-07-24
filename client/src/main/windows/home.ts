@@ -16,10 +16,10 @@ export async function createHomeWin(app: App) {
 
     win.on("focus", async () => {
         // 每当窗口聚焦时，判断一下登录是否过期
-        const startDate = app.store.get("startDate") as number;
+        const user = app.store.get("user") as any;
+        const startDate = user!.startDate as number;
         if (Date.now() - startDate >= MAX_AGE) {
             // 过期了，进入登录窗口
-            app.store.delete("name");
             await createLoginWin(app);
             win.destroy();
         }

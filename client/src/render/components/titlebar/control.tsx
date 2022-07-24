@@ -1,6 +1,7 @@
 import React from "react";
 import { classnames } from "@/core/utils";
-import { ControlId, IpcChannel } from "@main/ipc";
+import { ControlId } from "@main/ipc";
+import { windowControl } from "@/core/ipc";
 
 const controls = [
     { label: "最小化", icon: "--", id: ControlId.MIN },
@@ -9,14 +10,11 @@ const controls = [
 ];
 
 const Control: React.FC<Record<string, any>> = () => {
-    const onControlClick = (id: ControlId) => {
-        window.ipcRenderer.send(IpcChannel.WINDOW_CONTROL, id);
-    };
     return (
         <div className={classnames("window-controls")}>
             {controls.map(e => (
                 <div
-                    onClick={() => onControlClick(e.id)}
+                    onClick={() => windowControl(e.id)}
                     key={e.label}
                     title={e.label}
                 >

@@ -1,18 +1,27 @@
 import { Request, Response, NextFunction } from "express";
+import { Dayjs } from "dayjs";
 
 export type User = {
+    /** name 必须唯一 */
     name?: string;
     nickName?: string;
     password?: string;
-    friends?: string[];
+    friends?: SafeUser[];
+    /** 带问候语的strangers */
+    strangers?: Stranger[];
     avatar?: string;
 };
 
-export type Hero = {
+/** 排除了 password 的安全 user */
+export type SafeUser = Omit<User, "password" | "friends" | "strangers">;
+
+export type Stranger = SafeUser & { hello?: string };
+
+export type Msg = {
     name: string;
-    role: "top" | "jungle" | "middle" | "AD" | "sup";
-    stars: 1 | 2 | 3 | 4 | 5;
-    difficult: "normal" | "easy" | "difficult" | "hell";
+    date: Dayjs;
+    msg: string;
+    unread?: boolean;
 };
 
 export interface MiddleWare {
@@ -21,17 +30,17 @@ export interface MiddleWare {
 
 // socket
 export interface ServerToClientEvents {
-    "add-friend-request": (me: string) => void;
-    "private-chat": (msg: string, me: string) => void;
-    "permit-add-friend": (me: string) => void;
+    "add-friend-request": (me: Stranger) => void;
+    "private-chat": (msg: Msg, me: SafeUser) => void;
+    "permit-add-friend": (me: SafeUser) => void;
     "file-upload-progress": (length: number) => void;
 }
 
 export interface ClientToServerEvents {
-    "add-friend-request": (friend: string, me: string) => void;
-    "private-chat": (msg: string, me: string, members: string[]) => void;
-    "name:socketId": (name: string, socketId: string) => void;
-    "permit-add-friend": (friend: string, me: string) => void;
+    "add-friend-request": (friend: string, me: Stranger) => void;
+    "private-chat": (msg: Msg, me: SafeUser, members: SafeUser[]) => void;
+    "name:socketId": (name: string) => void;
+    "permit-add-friend": (friend: SafeUser, me: SafeUser) => void;
 }
 
 export interface InterServerEvents {

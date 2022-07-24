@@ -1,31 +1,26 @@
+import { SafeUser, Stranger } from "@/types";
 import { request } from "../../core/service";
-import { Hero } from "@/types";
-
-export function getLolHeroList() {
-    return request<{ data: Hero[] }>({
-        url: "/lol/list",
-    });
-}
-
-export function addHero(data: Hero) {
-    return request({
-        url: "/lol/add",
-        method: "post",
-        data,
-    });
-}
 
 export function getFriends(name: string) {
-    return request<{ data: string[] }>({
+    return request<{ data: { friends: SafeUser[]; strangers: Stranger[] } }>({
         url: "/user/friends",
         params: { name },
     });
 }
 
-export function addFriend(data: { me: string; friend: string }) {
+export function addFriendRequest(data: { me: Stranger; friend: string }) {
     return request({
-        url: "/user/addfriend",
-        params: data,
+        url: "/user/addfriendrequest",
+        method: "post",
+        data,
+    });
+}
+
+export function permitFriend(data: { me: SafeUser; friend: SafeUser }) {
+    return request({
+        url: "/user/permitfriend",
+        method: "post",
+        data,
     });
 }
 

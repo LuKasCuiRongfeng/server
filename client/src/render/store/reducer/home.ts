@@ -1,12 +1,20 @@
-import { User } from "@/types";
+import { Msg, SafeUser, User } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface State {
     user: User;
+    /**
+     * @example
+     * ```
+     * {liu: {user: { nickname, name, avatar }, chatHistory: [{ msg, name, date, unread }] }}
+     * ```
+     */
+    chatLog: Record<string, { friend: SafeUser; chatHistory: Msg[] }>;
 }
 
 const initialState: State = {
     user: {},
+    chatLog: {},
 };
 
 export const home = createSlice({
@@ -15,6 +23,9 @@ export const home = createSlice({
     reducers: {
         setUser: (state, action) => {
             state.user = action.payload;
+        },
+        setChatLog: (state, action) => {
+            state.chatLog = action.payload;
         },
     },
 });

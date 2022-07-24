@@ -49,27 +49,19 @@ export function findSockets(name: string) {
 
 io.on("connection", socket => {
     socket.on("private-chat", (msg, me, members) => {
-        const sockets = findSockets(members[0]);
+        const sockets = findSockets(members[0].name);
         sockets.forEach(el => {
-            console.log(el.id, msg, me);
             el.emit("private-chat", msg, me);
         });
     });
 
-    socket.on("name:socketId", (name, socketId) => {
+    socket.on("name:socketId", name => {
         // name 标记 socketId
         socket.data.name = name;
     });
 
-    socket.on("add-friend-request", (friend, me) => {
-        const sockets = findSockets(friend);
-        sockets.forEach(el => {
-            socket.to(el.id).emit("add-friend-request", me);
-        });
-    });
-
     socket.on("permit-add-friend", (friend, me) => {
-        const sockets = findSockets(friend);
+        const sockets = findSockets(friend.name);
         sockets.forEach(el => {
             socket.to(el.id).emit("permit-add-friend", me);
         });

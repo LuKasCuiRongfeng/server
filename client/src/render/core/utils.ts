@@ -2,6 +2,9 @@ import classNames from "classnames";
 import { CLASS_PREFIX } from "./const";
 import dayjs, { Dayjs } from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { IpcChannel } from "@main/ipc";
+import { SafeUser } from "@/types";
+import { getLocalStore, setLocalStore } from "./ipc";
 
 /** 返回带有前缀 `crf-client-` 的 classname */
 export function classnames(...args: (string | { [key: string]: any })[]) {
@@ -30,11 +33,11 @@ export async function changeTheme(theme?: Theme) {
         document.body.style.setProperty(`--${v}`, val);
     });
     // 保存到本地
-    return window.ipcRenderer.invoke("ELECTRON_STORE", { theme: _theme });
+    await setLocalStore({ theme: _theme });
 }
 
 export async function getTheme(): Promise<Theme> {
-    return window.ipcRenderer.invoke("ELECTRON_STORE", "theme");
+    return getLocalStore("theme");
 }
 
 interface FormatterOption {

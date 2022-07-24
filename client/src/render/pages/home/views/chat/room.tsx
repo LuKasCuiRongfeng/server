@@ -5,27 +5,23 @@ import { Avatar, Input } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMemoizedFn } from "ahooks";
-import dayjs, { Dayjs } from "dayjs";
-import { getAvatar } from "../../api";
+import dayjs from "dayjs";
+import { Msg, SafeUser } from "@/types";
 
 type Props = {
     isPrivate: boolean;
-    members: string[];
-    unreadLines: Msg[];
-    addUnreadLine?: (msg: Msg) => void;
-};
-
-export type Msg = {
-    name: string;
-    date: Dayjs;
-    msg: string;
+    members: SafeUser[];
+    updateChatLog: (
+        friend: SafeUser,
+        msg?: Msg,
+        removeUnRead?: boolean
+    ) => Promise<void>;
 };
 
 const Room = (props: Props) => {
-    const { isPrivate, members, addUnreadLine, unreadLines } = props;
-    const [msg, setMsg] = useState("");
+    const { isPrivate, members, updateChatLog } = props;
+    const [msg, setChatMsg] = useState("");
     const [lines, setLines] = useState<Msg[]>([]);
-    const [friendAvatar, setFriendAvatar] = useState("");
 
     const roomBodyRef = useRef<HTMLDivElement>();
 
@@ -33,15 +29,20 @@ const Room = (props: Props) => {
 
     const user = useAppSelector(state => state.home.user);
 
-    const socketCb = useMemoizedFn((msg, friend) => {
+    const chatLog = useAppSelector(state => state.home.chatLog);
+
+    const socketCb = useMemoizedFn(async (msg: Msg, friend: SafeUser) => {
         // 判断当前是否是正在聊天的对象
-        if (members.includes(friend)) {
+        const _msg = { ...msg };
+        const current = members.find(el => el.name === friend.name);
+        if (current != null) {
             // 是正在聊天的对象
-            setLines([...lines, { name: friend, date: dayjs(), msg }]);
+            _msg.unread = false;
         } else {
             // 不是正在聊天的对象，在左边列表显示有聊天信息，设置为未读
-            addUnreadLine({ name: friend, date: dayjs(), msg });
+            _msg.unread = true;
         }
+        await updateChatLog(friend, _msg);
     });
 
     useEffect(() => {
@@ -53,18 +54,14 @@ const Room = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        setLines([...lines, ...unreadLines]);
-    }, [unreadLines]);
-
-    useEffect(() => {
         if (members.length === 0) {
             return;
         }
-        getAvatar(members[0]).then(res => {
-            if (res.data.status === "success") {
-                setFriendAvatar(res.data.data);
-            }
-        });
+        const friend = members[0];
+        const chatHistory = chatLog[friend.name]?.chatHistory;
+        if (chatHistory) {
+            setLines(chatHistory);
+        }
     }, [members]);
 
     useEffect(() => {
@@ -74,8 +71,9 @@ const Room = (props: Props) => {
     }, [lines]);
 
     const renderAvatar = (line: Msg) => {
-        const name = line.name === user.name ? user.name : members[0];
-        const avatar = line.name === user.name ? user.avatar : friendAvatar;
+        const name = line.name === user.name ? user.name : members[0].name;
+        const avatar =
+            line.name === user.name ? user.avatar : members[0].avatar;
         return {
             name: name.slice(0, 3),
             avatar,
@@ -119,11 +117,20 @@ const Room = (props: Props) => {
         );
     };
 
-    const sendMsg = (key: string) => {
+    const sendChatMsg = async (key: string) => {
+        const friend = members[0];
         if (key.toLowerCase() === "enter") {
-            socket.emit("private-chat", msg, user.name, members);
-            setLines([...lines, { name: user.name, date: dayjs(), msg }]);
-            setMsg("");
+            // 更新本地和redux
+            const _msg: Msg = {
+                name: user.name,
+                date: dayjs(),
+                msg,
+            };
+            await updateChatLog(friend, _msg);
+
+            socket.emit("private-chat", _msg, user, members);
+
+            setChatMsg("");
         }
     };
     return (
@@ -136,8 +143,8 @@ const Room = (props: Props) => {
                         <Input
                             value={msg}
                             placeholder={t("发送消息")}
-                            onChange={e => setMsg(e.target.value)}
-                            onKeyUp={e => sendMsg(e.key)}
+                            onChange={e => setChatMsg(e.target.value)}
+                            onKeyUp={e => sendChatMsg(e.key)}
                             suffix={
                                 <span style={{ color: "var(--gray-6)" }}>
                                     enter

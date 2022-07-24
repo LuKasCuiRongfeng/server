@@ -1,10 +1,10 @@
 import express from "express";
-import multer from "multer";
 import {
-    addFriend,
+    addFriendRequest,
     friends,
     getAvatar,
     login,
+    permitFriend,
     register,
     uploadAvatar,
 } from "../controller/user";
@@ -18,7 +18,9 @@ export function userRouter() {
 
     router.get("/friends", friends);
 
-    router.get("/addfriend", addFriend);
+    router.post("/addfriendrequest", addFriendRequest);
+
+    router.get("/permitfriend", permitFriend);
 
     router.get("/getavatar", getAvatar);
 

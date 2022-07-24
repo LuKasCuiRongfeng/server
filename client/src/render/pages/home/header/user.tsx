@@ -1,31 +1,10 @@
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { IpcChannel } from "@main/ipc";
-import { Avatar, Dropdown, Menu, message, Modal } from "antd";
-import React, { useEffect, useState } from "react";
-import { getAvatar } from "../api";
+import { createWin, userExit } from "@/core/ipc";
+import { useAppSelector } from "@/store/hooks";
+import { Avatar, Dropdown, Menu, Modal } from "antd";
+import React from "react";
 
 const UserSet = () => {
     const user = useAppSelector(state => state.home.user);
-
-    const dispatch = useAppDispatch();
-
-    useEffect(() => {
-        if (user.name) {
-            getAvatar(user.name).then(res => {
-                if (res.data.status === "success") {
-                    dispatch({
-                        type: "home/setUser",
-                        payload: {
-                            ...user,
-                            avatar: res.data.data,
-                        },
-                    });
-                } else {
-                    message.error(res.data.error);
-                }
-            });
-        }
-    }, [user.name]);
 
     const menu = (
         <Menu
@@ -38,25 +17,17 @@ const UserSet = () => {
                 if (key === "EXIT") {
                     Modal.confirm({
                         title: "你确定要退出登录吗?",
-                        onOk: () => {
-                            window.ipcRenderer.send(IpcChannel.WINDOW_LOGIN, {
-                                exit: true,
-                            });
-                        },
+                        onOk: () => userExit(),
                     });
                 } else if (key === "set") {
                     // 创建一个 子窗口
-                    window.ipcRenderer.send(IpcChannel.CREATE_WIN, {
+                    createWin({
                         key: "userset",
                         parent: "home",
                         browserWindowConstructorOptions: {
                             width: 800,
                             height: 500,
                             modal: true,
-                        },
-                        data: {
-                            type: "userset/setUser",
-                            payload: user,
                         },
                     });
                 }

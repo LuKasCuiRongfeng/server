@@ -5,12 +5,12 @@ import "antd/dist/antd.css";
 import "./vars.css";
 import "./theme.css";
 import "./app.css";
-import { registerIpcEvent } from "./core/ipcEvent";
 import Router from "./router";
 import store from "./store";
 import { changeTheme } from "./core/utils";
 import "./locales";
 import "./core/socket";
+import { registerIpcEvent } from "./core/ipc";
 
 createRoot(document.getElementById("root")!).render(
     <React.StrictMode>

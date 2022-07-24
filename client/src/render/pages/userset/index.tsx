@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ElectronWindow } from "@/components";
 import { classnames } from "@/core/utils";
 import { Menu, MenuProps } from "antd";
 import "./index.less";
 import AccountSet from "./AccountSet";
+import { getLocalStore } from "@/core/ipc";
+import { useAppDispatch } from "@/store/hooks";
 
 const UserSet = () => {
     const [selectedKey, setSelectedKey] = useState("account-set");
+    const dispatch = useAppDispatch();
     const menuItems: MenuProps["items"] = [
         {
             label: "账号设置",
@@ -17,6 +20,16 @@ const UserSet = () => {
             key: "account-security",
         },
     ];
+
+    useEffect(() => {
+        // 拿 userinfo
+        getLocalStore("user").then(res => {
+            dispatch({
+                type: "userset/setUser",
+                payload: res,
+            });
+        });
+    }, []);
     const renderContent = (key: string) => {
         if (key === "account-set") {
             return <AccountSet />;

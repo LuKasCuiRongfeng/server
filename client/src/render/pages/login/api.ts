@@ -1,8 +1,8 @@
 import { request } from "@/core/service";
-import { User } from "@/types";
+import { SafeUser, User } from "@/types";
 
 export function userLogin(user: User) {
-    return request<{ data: User }>({
+    return request<{ data: SafeUser }>({
         url: "/user/login",
         method: "post",
         data: user,

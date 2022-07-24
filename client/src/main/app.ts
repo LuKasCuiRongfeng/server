@@ -1,3 +1,4 @@
+import { FileUpload } from "@/types";
 import { dialog, ipcMain } from "electron";
 import Store from "electron-store";
 import { statSync } from "fs";
@@ -25,9 +26,6 @@ export default class App {
         this.URL = new URL(this);
         this.store = new Store();
 
-        // 默认 dark 主题
-        this.store.set("theme", "dark");
-
         await createLoginWin(this);
 
         // 务必在最后注册
@@ -37,124 +35,124 @@ export default class App {
     /** 注册所有的ipc */
     private registerIpcEvent() {
         ipcMain.on(IpcChannel.CREATE_WIN, (e, args: WinConstructorOptions) => {
-            this.windowManager.createWin(args);
+            try {
+                this.windowManager.createWin(args);
+            } catch (error) {
+                console.error(error);
+            }
         });
 
         ipcMain.on(IpcChannel.SEND_MSG, (e, args: CrossWinData) => {
-            this.windowManager.sendMsg(args.key, args.data);
+            try {
+                this.windowManager.sendMsg(args.key, args.data);
+            } catch (error) {
+                console.error(error);
+            }
         });
 
         ipcMain.on(IpcChannel.WINDOW_CONTROL, (e, args: ControlId) => {
-            const win = this.windowManager.getFocusWin();
-            if (win == null) return;
-            switch (args) {
-                case ControlId.CLOSE:
-                    win.close();
-                    break;
-                case ControlId.MAX:
-                    win.isMaximized() ? win.unmaximize() : win.maximize();
-                    break;
-                case ControlId.MIN:
-                    win.minimize();
-                    break;
-                default:
+            try {
+                const win = this.windowManager.getFocusWin();
+                if (win == null) return;
+                switch (args) {
+                    case ControlId.CLOSE:
+                        win.close();
+                        break;
+                    case ControlId.MAX:
+                        win.isMaximized() ? win.unmaximize() : win.maximize();
+                        break;
+                    case ControlId.MIN:
+                        win.minimize();
+                        break;
+                    default:
+                }
+            } catch (error) {
+                console.error(error);
             }
         });
 
         ipcMain.handle(IpcChannel.ELECTRON_STORE, (e, args) => {
-            if (typeof args === "string") {
-                // get
-                return this.store.get(args);
-            } else if (typeof args === "object") {
+            try {
+                if (typeof args === "string") {
+                    // get
+                    return this.store.get(args);
+                }
                 // set
                 this.store.set(args);
-                return true;
+            } catch (error) {
+                console.error(error);
             }
-            return;
         });
 
         ipcMain.on(IpcChannel.WINDOW_LOGIN, async (e, args) => {
-            if (args.exit === true) {
-                // 推出登录
-                this.store.delete("name");
-                await createLoginWin(this);
-                this.windowManager.destroy("home");
-                return;
+            try {
+                if (args.exit === true) {
+                    // 退出登录
+                    this.store.delete("user");
+                    await createLoginWin(this);
+                    this.windowManager.destroy("home");
+                    return;
+                }
+                this.store.set("user", { ...args, startDate: Date.now() });
+                // 登录成功，关闭login窗口，打开主窗口
+                await createHomeWin(this);
+                this.windowManager.destroy("login");
+            } catch (error) {
+                console.error(error);
             }
-            console.log(args.name);
-            this.store.set({
-                name: args.name,
-                startDate: Date.now(),
-            });
-            // 登录成功，关闭login窗口，打开主窗口
-            await createHomeWin(this);
-            this.windowManager.destroy("login");
-        });
-
-        ipcMain.handle(IpcChannel.USER_INFO, (e, socketId) => {
-            socketId && this.store.set("socketId", socketId);
-            const userInfo = {
-                name: this.store.get("name"),
-                socketId: this.store.get("socketId"),
-            };
-            return userInfo;
         });
 
         ipcMain.handle(IpcChannel.FILE_STAT, (e, filepath) => {
             try {
                 return statSync(filepath);
-            } catch (err) {
-                console.error(err);
+            } catch (error) {
+                console.error(error);
             }
         });
 
-        ipcMain.handle(IpcChannel.FILE_UPLOAD, async (e, { stat, upload }) => {
+        // 文件上传
+        ipcMain.handle(IpcChannel.FILE_UPLOAD, async (e, args: FileUpload) => {
             try {
-                if (stat) {
-                    // 只是统计
-                    const { filters, maxSize = 100 * 1024 * 1024 } = stat;
-                    const res = await dialog.showOpenDialog({
-                        buttonLabel: "确定",
-                        filters,
-                        properties: ["openFile", "dontAddToRecent"],
-                    });
+                const {
+                    name,
+                    url,
+                    filepath,
+                    maxSize = 100 * 1024 * 1024,
+                } = args;
+                const filesize = statSync(filepath).size;
 
-                    if (res.canceled) {
-                        return {
-                            canceled: true,
-                        };
-                    }
+                if (filesize > maxSize) {
+                    return { error: "文件大小超过限制" };
+                }
+                return uploadFile({ name, url, filepath });
+            } catch (error) {
+                console.error(error);
+            }
+        });
 
-                    const filepath = res.filePaths[0];
+        ipcMain.handle(IpcChannel.OPEN_DIALOG, async (e, filters) => {
+            try {
+                const res = await dialog.showOpenDialog({
+                    filters,
+                    properties: ["openFile", "dontAddToRecent"],
+                });
 
-                    let error = "";
-
-                    const filesize = statSync(filepath).size;
-
-                    if (filesize > maxSize) {
-                        error = "图片大小超过限制尺寸";
-                    }
-
+                if (res.canceled) {
                     return {
-                        filesize,
-                        filepath,
-                        error,
-                        canceled: false,
+                        canceled: true,
                     };
                 }
-                if (upload) {
-                    const { filepath, url, name } = upload;
-                    const res = await uploadFile({
-                        filepath,
-                        url,
-                        name,
-                    });
 
-                    return res;
-                }
-                return { error: "文件错误" };
-            } catch (err) {
-                console.error(err);
+                const filepath = res.filePaths[0];
+                const filesize = statSync(filepath);
+
+                return {
+                    canceled: false,
+                    filepath,
+                    filesize,
+                };
+            } catch (error) {
+                console.error(error);
             }
         });
     }

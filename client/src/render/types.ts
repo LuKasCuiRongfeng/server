@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 export interface CommonResponse {
     status: "success" | "failed";
     error: string;
@@ -5,15 +6,42 @@ export interface CommonResponse {
 
 export type User = {
     name?: string;
+    nickName?: string;
     password?: string;
-    friends?: string[];
-    socketId?: string;
+    friends?: SafeUser[];
+    /** 带问候语的strangers */
+    strangers?: Stranger[];
     avatar?: string;
 };
 
-export type Hero = {
+export type SafeUser = Omit<User, "password" | "friends" | "strangers">;
+
+export type Stranger = SafeUser & { hello?: string };
+
+export type Msg = {
     name: string;
-    role: "top" | "jungle" | "middle" | "AD" | "sup";
-    stars: 1 | 2 | 3 | 4 | 5;
-    difficult: "normal" | "easy" | "difficult" | "hell";
+    date: Dayjs;
+    msg: string;
+    unread?: boolean;
+};
+
+export type SuperUser = SafeUser & { unreadLines?: Msg[]; readLines?: Msg[] };
+
+export type FileUpload = {
+    /** 上传用户 */
+    name: string;
+    /** 上传地址 */
+    url: string;
+    /** 文件路径 */
+    filepath: string;
+    /** 最大限制 */
+    maxSize?: number;
+};
+
+export type FileFilter = { name: string; extensions: string[] }[];
+
+export type OpenDialogReturn = {
+    canceled: boolean;
+    filepath: string;
+    filesize: string;
 };

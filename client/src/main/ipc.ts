@@ -10,7 +10,6 @@ export enum IpcChannel {
     WINDOW_CONTROL = "WINDOW_CONTROL",
     ELECTRON_STORE = "ELECTRON_STORE",
     WINDOW_LOGIN = "WINDOW_LOGIN",
-    USER_INFO = "USER_INFO",
     OPEN_DIALOG = "OPEN_DIALOG",
     FILE_UPLOAD = "FILE_UPLOAD",
     FILE_STAT = "FILE_STAT",
@@ -26,19 +25,7 @@ export type IpcChannelType = keyof typeof IpcChannel;
 
 type PrimaryDataType = string | number | boolean | symbol | Record<string, any>;
 
-export type FileUploadDataType = {
-    /** 文件选择选项 */
-    filters: { name: string; extensions: string[] }[];
-    /** 上传地址 */
-    url: string;
-    /** 用户名，唯一 */
-    name: string;
-    /** 大小限制，单位 Byte default 100MB */
-    maxSize?: number;
-};
-
 export type IpcDataType =
     | WinConstructorOptions // 创建窗口时
     | PrimaryDataType // 普通字符串数据
-    | CrossWinData // 向另外一个窗口传递数据时
-    | FileUploadDataType;
+    | CrossWinData; // 向另外一个窗口传递数据时

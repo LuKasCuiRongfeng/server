@@ -16,12 +16,14 @@ const Login_reg: React.FC<Record<string, any>> = () => {
             "password",
             "surepassword",
         ]);
-        const res = await userReg(omit(values, ["surepassword"]) as User);
-        if (res.data.status === "success") {
+        const {
+            data: { status, error },
+        } = await userReg(omit(values, ["surepassword"]) as User);
+        if (status === "success") {
             message.success("注册成功");
             navigate("/login");
         } else {
-            message.error(res.data.error);
+            message.error(error);
         }
     };
     return (

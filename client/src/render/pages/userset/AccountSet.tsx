@@ -1,11 +1,15 @@
+import {
+    crossWinSendMsg,
+    openDialog,
+    setLocalStore,
+    uploadFile,
+} from "@/core/ipc";
 import socket from "@/core/socket";
 import { classnames } from "@/core/utils";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { IpcChannel } from "@main/ipc";
 import { Avatar, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { getAvatar } from "../home/api";
-import { beforeUploadFile, uploadFile } from "./api";
 
 const AccountSet = () => {
     const [mask, setMask] = useState(false);
@@ -24,42 +28,43 @@ const AccountSet = () => {
     }, []);
 
     const onClickAvatar = async () => {
-        const res = await beforeUploadFile({
-            filters: [
-                {
-                    name: "Images",
-                    extensions: ["png", "jpg"],
-                },
-            ],
-            maxSize: 100 * 1024,
-        });
-        if (res.canceled || res.error) {
-            res.error && message.error(res.error);
+        const res = await openDialog([
+            { name: "Images", extensions: ["png", "jpg"] },
+        ]);
+        if (res.canceled) {
             return;
         }
-        const { filepath, filesize } = res;
-        console.log("filesize", filesize);
+        const { filepath } = res;
+
         const _res = await uploadFile({
             filepath,
             name: user.name,
             url: "/user/uploadavatar",
+            maxSize: 100 * 1024,
         });
-        if (_res.status === "success") {
-            const result = await getAvatar(user.name);
-            if (result.data.status === "success") {
-                dispatch({
-                    type: "userset/setUser",
-                    payload: { ...user, avatar: result.data.data },
-                });
-                // 刷新首页的头像
-                window.ipcRenderer.send(IpcChannel.SEND_MSG, {
-                    key: "home",
-                    data: {
-                        type: "home/setUser",
-                        payload: { ...user, avatar: result.data.data },
-                    },
-                });
-            }
+
+        if (_res.error) {
+            message.error(_res.error);
+            return;
+        }
+        const {
+            data: { status, data },
+        } = await getAvatar(user.name);
+
+        if (status === "success") {
+            await setLocalStore({ user: { ...user, avatar: data } });
+            dispatch({
+                type: "userset/setUser",
+                payload: { ...user, avatar: data },
+            });
+            // 刷新首页的头像
+            await crossWinSendMsg({
+                key: "home",
+                data: {
+                    type: "home/setUser",
+                    payload: { ...user, avatar: data },
+                },
+            });
         }
     };
     return (
