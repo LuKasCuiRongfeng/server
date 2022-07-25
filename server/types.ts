@@ -30,6 +30,7 @@ export interface ServerToClientEvents {
     "private-chat": (msg: Msg, me: string) => void;
     "permit-add-friend": (me: string) => void;
     "file-upload-progress": (length: number) => void;
+    "sync-chat": (msgs: Msg[], me: string) => void;
 }
 
 export interface ClientToServerEvents {
@@ -37,6 +38,7 @@ export interface ClientToServerEvents {
     "private-chat": (msg: Msg, me: string, members: string[]) => void;
     "name:socketId": (name: string) => void;
     "permit-add-friend": (friend: string, me: string) => void;
+    "sync-chat": (msgs: Msg[], me: string, friend: string) => void;
 }
 
 export interface InterServerEvents {

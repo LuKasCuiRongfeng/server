@@ -44,8 +44,43 @@ const Room = (props: Props) => {
         updateChatLog({ user: user.name, friend, msgs: [_msg] });
     });
 
+    const socketSyncCb = useMemoizedFn((msgs: Msg[], friend: string) => {
+        const logs = [...(chatLog[friend] || [])];
+        // 从后往前按照时间顺序插入，双指针法
+        const arr: Msg[] = [];
+        for (
+            let i = msgs.length - 1, j = logs.length - 1;
+            i >= 0 && j >= 0;
+            i--, j--
+        ) {
+            console.log(1111);
+        }
+    });
+
     useEffect(() => {
         socket.on("private-chat", socketCb);
+
+        // 尝试去同步双方的聊天记录，因为可能对方在我
+        // 没有在线的时候发了消息，我也可能在对方没
+        // 在线的时候发了消息
+        // 考虑到性能，最多同步最近的我说的100条记录
+        // 其余的不再同步
+        const msgs: Msg[] = [];
+        const logs = chatLog[members[0]] || [];
+        for (let i = logs.length - 1; i >= 0; i--) {
+            const log = logs[i];
+            if (log.name === user.name) {
+                // 我说的话
+                msgs.unshift(log);
+            }
+            if (msgs.length === 100) {
+                // 最多同步 最近的100条
+                break;
+            }
+        }
+        socket.emit("sync-chat", msgs, user.name, members[0]);
+
+        socket.on("sync-chat", socketSyncCb);
 
         return () => {
             socket.off("private-chat");

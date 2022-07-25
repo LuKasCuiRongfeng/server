@@ -60,6 +60,13 @@ io.on("connection", socket => {
         socket.data.name = name;
     });
 
+    socket.on("sync-chat", (msgs, me, friend) => {
+        const sockets = findSockets(friend);
+        sockets.forEach(el => {
+            el.emit("sync-chat", msgs, me);
+        });
+    });
+
     socket.on("disconnect", reason => {
         console.log("server socket disconnected: ", socket.id, reason);
     });
