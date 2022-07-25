@@ -45,35 +45,24 @@ const Room = (props: Props) => {
     });
 
     const socketSyncCb = useMemoizedFn((msgs: Msg[], friend: string) => {
-        const logs = [...(chatLog[friend] || [])];
+        // 回一个消息同步
+        socket.emit("sync-chat-reply", sliceMsgs(100), user.name, members[0]);
+
         // 从后往前按照时间顺序插入，双指针法
-        const arr: Msg[] = [];
-        let i = logs.length - 1,
-            j = msgs.length - 1;
-        while (i >= 0 && j >= 0) {
-            if (
-                logs[i].date === msgs[j].date &&
-                logs[i].name === msgs[j].name
-            ) {
-                // 名字时间一样判定为同一条
-                arr.unshift(logs[i]);
-                i--;
-                j--;
-            } else {
-                if (logs[i].date >= msgs[j].date) {
-                    arr.unshift(logs[i--]);
-                } else {
-                    arr.unshift(msgs[j--]);
-                }
-            }
-        }
-        // 把剩余的加上
-        while (i >= 0) {
-            arr.unshift(logs[i--]);
-        }
-        while (j >= 0) {
-            arr.unshift(msgs[j--]);
-        }
+        const logs = chatLog[friend] || [];
+        const arr = insertMsgs(logs, msgs);
+        updateChatLog({
+            user: user.name,
+            friend,
+            msgs: arr,
+            replace: true,
+        });
+    });
+
+    const socketSyncReplyCb = useMemoizedFn((msgs: Msg[], friend: string) => {
+        // 从后往前按照时间顺序插入，双指针法
+        const logs = chatLog[friend] || [];
+        const arr = insertMsgs(logs, msgs);
         updateChatLog({
             user: user.name,
             friend,
@@ -87,8 +76,11 @@ const Room = (props: Props) => {
 
         socket.on("sync-chat", socketSyncCb);
 
+        socket.on("sync-chat-reply", socketSyncReplyCb);
+
         return () => {
             socket.off("private-chat");
+            socket.off("sync-chat");
         };
     }, []);
 
@@ -107,24 +99,9 @@ const Room = (props: Props) => {
         if (members.length === 0) {
             return;
         }
-        // 尝试去同步双方的聊天记录，因为可能对方在我
-        // 没有在线的时候发了消息，我也可能在对方没
-        // 在线的时候发了消息
-        // 考虑到性能，最多同步最近的我说的100条记录
-        // 其余的不再同步
-        const msgs: Msg[] = [];
-        const logs = chatLog[members[0]] || [];
-        for (let i = logs.length - 1; i >= 0; i--) {
-            const log = logs[i];
-            if (log.name === user.name) {
-                // 我说的话
-                msgs.unshift(log);
-            }
-            if (msgs.length === 100) {
-                // 最多同步 最近的100条
-                break;
-            }
-        }
+
+        // 尝试同步聊天记录
+        const msgs = sliceMsgs(100);
         socket.emit("sync-chat", msgs, user.name, members[0]);
 
         getUser(members[0]).then(res => {
@@ -140,6 +117,62 @@ const Room = (props: Props) => {
             roomBodyRef.current.scrollTop = roomBodyRef.current.scrollHeight;
         }
     }, [lines]);
+
+    // 尝试去同步双方的聊天记录，因为可能对方在我
+    // 没有在线的时候发了消息，我也可能在对方没
+    // 在线的时候发了消息
+    // 考虑到性能，最多同步最近的我说的100条记录
+    // 其余的不再同步
+    const sliceMsgs = (length: number) => {
+        const msgs: Msg[] = [];
+        const logs = chatLog[members[0]] || [];
+        for (let i = logs.length - 1; i >= 0; i--) {
+            const log = logs[i];
+            if (log.name === user.name) {
+                // 我说的话
+                msgs.unshift(log);
+            }
+            if (msgs.length === length) {
+                // 最多同步
+                break;
+            }
+        }
+        return msgs;
+    };
+
+    /** 按照时间顺序重新组装 */
+    const insertMsgs = (logs1: Msg[], logs2: Msg[]) => {
+        // 从后往前按照时间顺序插入，双指针法
+        const arr: Msg[] = [];
+        let i = logs1.length - 1,
+            j = logs2.length - 1;
+        while (i >= 0 && j >= 0) {
+            if (
+                logs1[i].date === logs2[j].date &&
+                logs1[i].name === logs2[j].name
+            ) {
+                // 名字时间一样判定为同一条
+                arr.unshift(logs1[i]);
+                i--;
+                j--;
+            } else {
+                if (logs1[i].date >= logs2[j].date) {
+                    arr.unshift(logs1[i--]);
+                } else {
+                    arr.unshift(logs2[j--]);
+                }
+            }
+        }
+        // 把剩余的加上
+        while (i >= 0) {
+            arr.unshift(logs1[i--]);
+        }
+        while (j >= 0) {
+            arr.unshift(logs2[j--]);
+        }
+
+        return arr;
+    };
 
     const renderAvatar = (line: Msg) => {
         const name = line.name === user.name ? user.name : members[0];

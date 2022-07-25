@@ -67,6 +67,13 @@ io.on("connection", socket => {
         });
     });
 
+    socket.on("sync-chat-reply", (msgs, me, friend) => {
+        const sockets = findSockets(friend);
+        sockets.forEach(el => {
+            el.emit("sync-chat-reply", msgs, me);
+        });
+    });
+
     socket.on("disconnect", reason => {
         console.log("server socket disconnected: ", socket.id, reason);
     });

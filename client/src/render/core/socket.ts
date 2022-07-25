@@ -10,6 +10,7 @@ interface ServerToClientEvents {
     "permit-add-friend": (friend: string) => void;
     "file-upload-progress": (length: number) => void;
     "sync-chat": (msgs: Msg[], friend: string) => void;
+    "sync-chat-reply": (msgs: Msg[], friend: string) => void;
 }
 
 interface ClientToServerEvents {
@@ -18,6 +19,7 @@ interface ClientToServerEvents {
     "name:socketId": (name: string) => void;
     "permit-add-friend": (friend: string, me: string) => void;
     "sync-chat": (msgs: Msg[], me: string, friend: string) => void;
+    "sync-chat-reply": (msgs: Msg[], me: string, friend: string) => void;
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
