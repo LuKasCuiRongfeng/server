@@ -27,6 +27,7 @@ const Room = (props: Props) => {
     const { t } = useTranslation();
 
     const { chatLog, updateChatLog } = useChatLog();
+
     const { user } = useUser();
 
     const socketCb = useMemoizedFn(async (msg: Msg, friend: string) => {
@@ -40,7 +41,7 @@ const Room = (props: Props) => {
             // 不是正在聊天的对象，在左边列表显示有聊天信息，设置为未读
             _msg.unread = true;
         }
-        updateChatLog({ user: user.name, friend, msg: _msg });
+        updateChatLog({ user: user.name, friend, msgs: [_msg] });
     });
 
     useEffect(() => {
@@ -129,7 +130,7 @@ const Room = (props: Props) => {
                 date: Date.now(),
                 msg,
             };
-            updateChatLog({ user: user.name, friend, msg: _msg });
+            updateChatLog({ user: user.name, friend, msgs: [_msg] });
 
             socket.emit("private-chat", _msg, user.name, members);
 

@@ -85,16 +85,18 @@ export const addFriendRequest: MiddleWare = async (req, res) => {
             return;
         }
         // 去更新朋友的陌生人列表
-        await usersConnection.updateOne(
-            {
-                name: friend,
-            },
-            {
-                $set: {
-                    strangers: [..._friend.strangers, me],
+        if (!_friend.strangers.includes(me)) {
+            await usersConnection.updateOne(
+                {
+                    name: friend,
                 },
-            }
-        );
+                {
+                    $set: {
+                        strangers: [me, ..._friend.strangers],
+                    },
+                }
+            );
+        }
 
         // 发一个消息，让对方去更新一下陌生人列表，不管在没在线
         const sockets = findSockets(friend);
@@ -129,7 +131,7 @@ export const permitFriend: MiddleWare = async (req, res) => {
                 name: me,
             },
             {
-                $set: { friends: [..._me.friends, friend], strangers },
+                $set: { friends: [friend, ..._me.friends], strangers },
             }
         );
         await usersConnection.updateOne(
@@ -137,7 +139,7 @@ export const permitFriend: MiddleWare = async (req, res) => {
                 name: friend,
             },
             {
-                $set: { friends: [..._friend.friends, me] },
+                $set: { friends: [me, ..._friend.friends] },
             }
         );
         // 发一个消息，让朋友刷新一下
@@ -218,11 +220,7 @@ export const uploadAvatar: MiddleWare = async (req, res) => {
                         Buffer.concat(chunks).length
                     );
                 });
-            })
-                .on("close", () => {
-                    console.log(11);
-                })
-                .on("error", err => console.error(err));
+            }).on("error", err => console.error(err));
         });
 
         _busboy.on("close", async () => {

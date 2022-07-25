@@ -40,10 +40,10 @@ const io = new Server<
 
 /** 打开多个窗口，可能会造成一个用户对应多个 socket */
 export function findSockets(name: string) {
+    console.log("total alive sockets: ", io.sockets.sockets.size);
     const sockets = [...io.sockets.sockets.values()].filter(
         socket => socket.data.name === name
     );
-    console.log("size", io.sockets.sockets.size, sockets.length, name);
     return sockets;
 }
 

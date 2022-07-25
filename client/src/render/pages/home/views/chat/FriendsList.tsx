@@ -31,10 +31,22 @@ const FriendsList = (props: Props) => {
         getNewUser();
         socket.on("add-friend-request", async () => {
             // 收到添加好友的请求，陌生人列表+1
-            getNewUser();
+            await getNewUser();
         });
-        socket.on("permit-add-friend", async () => {
-            getNewUser();
+        socket.on("permit-add-friend", async friend => {
+            await getNewUser();
+            updateChatLog({
+                user: user.name,
+                friend,
+                msgs: [
+                    {
+                        date: Date.now(),
+                        name: friend,
+                        msg: "我们已经是朋友了, 开始聊天吧",
+                        unread: true,
+                    },
+                ],
+            });
         });
         return () => {
             socket.off("add-friend-request");
@@ -45,46 +57,36 @@ const FriendsList = (props: Props) => {
     useEffect(() => {
         const friends = user.friends || [];
         setFriends(friends);
-        const i = friends.length;
-        const arr: Promise<any>[] = [];
+        const _friendsAvatars = { ...friendsAvatars };
         for (let i = 0; i < friends.length; i++) {
-            arr.push(getUser(friends[i]));
+            getUser(friends[i]).then(res => {
+                const {
+                    data: { data, error },
+                } = res;
+                if (!error) {
+                    _friendsAvatars[data.name] = data.avatar;
+                    setFriendsAvatars(_friendsAvatars);
+                }
+            });
         }
-        // Promise.all(arr).then(res => {
-
-        // })
     }, [user.friends]);
 
     useEffect(() => {
-        if (user) {
-            const friends = user.friends || [];
-            const strangers = user.strangers || [];
-            setFriends(friends);
-            setStrangers(strangers);
-            friends.forEach(el => {
-                getUser(el).then(res => {
-                    const {
-                        data: { data },
-                    } = res;
-                    setFriendsAvatars({
-                        ...friendsAvatars,
-                        [data.name]: data.avatar,
-                    });
-                });
-            });
-            strangers.forEach(el => {
-                getUser(el.name).then(res => {
-                    const {
-                        data: { data },
-                    } = res;
-                    setStrangersAvatars({
-                        ...strangersAvatars,
-                        [data.name]: data.avatar,
-                    });
-                });
+        const strangers = user.strangers || [];
+        setStrangers(strangers);
+        const _strangersAvatars = { ...strangersAvatars };
+        for (let i = 0; i < strangers.length; i++) {
+            getUser(strangers[i].name).then(res => {
+                const {
+                    data: { data, error },
+                } = res;
+                if (!error) {
+                    _strangersAvatars[data.name] = data.avatar;
+                    setStrangersAvatars(_strangersAvatars);
+                }
             });
         }
-    }, [user]);
+    }, [user.strangers]);
 
     // 打开右边的聊天框
     const onOpenChatRoom = async (friend: string) => {
@@ -95,7 +97,6 @@ const FriendsList = (props: Props) => {
         updateChatLog({
             user: user.name,
             friend,
-            msg: null,
             removeUnRead: true,
         });
     };
@@ -103,6 +104,11 @@ const FriendsList = (props: Props) => {
     const onSearchFriend = async (searchName: string) => {
         if (friends.find(el => el === searchName)) {
             message.info("你们已经是好友");
+            return;
+        }
+
+        if (searchName === user.name) {
+            message.info("你不可以加自己为好友");
             return;
         }
 
@@ -136,39 +142,46 @@ const FriendsList = (props: Props) => {
             return;
         }
         // 拿到最新用户
-        getNewUser();
+        await getNewUser();
         //  更新一下chatlog
         updateChatLog({
             user: name,
             friend,
-            msg: {
-                name: friend,
-                msg: "我们已经是好友了, 开始聊天吧",
-                date: Date.now(),
-                unread: true,
-            },
+            msgs: [
+                {
+                    name: friend,
+                    msg: "我们已经是好友了, 开始聊天吧",
+                    date: Date.now(),
+                    unread: true,
+                },
+            ],
         });
     };
 
     const renderUnread = (friend: string, chatLog: Record<string, Msg[]>) => {
         const chatHistory = chatLog[friend] || [];
-        const msgs = [];
+        let count = 0,
+            msg = "";
         if (chatHistory) {
             // 从最后一条往上前找所有的未读的信息
             for (let i = chatHistory.length - 1; i >= 0; i--) {
                 const log = chatHistory[i];
                 if (log.name === friend && log.unread === true) {
-                    msgs.push(log);
+                    count++;
                 }
                 if (log.name === friend && !log.unread) {
                     // 遇到读过了的，立即停止
                     break;
                 }
+                if (log.name === friend) {
+                    // 填充朋友的最后一条信息
+                    !msg && (msg = log.msg);
+                }
             }
         }
         return {
-            count: msgs.length,
-            msg: msgs[0],
+            count,
+            msg,
         };
     };
 

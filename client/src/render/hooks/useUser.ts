@@ -12,22 +12,20 @@ const useUser = () => {
     const dispatch = useAppDispatch();
 
     /** 其他接口已经改变了数据里的user，所有拿最新的 */
-    const getNewUser = () => {
+    const getNewUser = async () => {
         // 拿 userinfo
         if (user != null) {
-            getUser(user.name).then(res => {
-                const {
-                    data: { error, data },
-                } = res;
-                if (error) {
-                    message.error(error);
-                    return;
-                }
-                // 拿到新的用户信息，开始更新用户
-                dispatch({
-                    type: "home/setUser",
-                    payload: data,
-                });
+            const {
+                data: { data, error },
+            } = await getUser(user.name);
+            if (error) {
+                message.error(error);
+                return;
+            }
+            // 拿到新的用户信息，开始更新用户
+            dispatch({
+                type: "home/setUser",
+                payload: data,
             });
         }
     };
