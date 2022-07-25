@@ -169,13 +169,13 @@ const FriendsList = (props: Props) => {
                 if (log.name === friend && log.unread === true) {
                     count++;
                 }
-                if (log.name === friend && !log.unread) {
-                    // 遇到读过了的，立即停止
-                    break;
-                }
                 if (log.name === friend) {
                     // 填充朋友的最后一条信息
                     !msg && (msg = log.msg);
+                }
+                if (log.name === friend && !log.unread) {
+                    // 遇到读过了的，立即停止
+                    break;
                 }
             }
         }
