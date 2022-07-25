@@ -23,15 +23,15 @@ interface ClientToServerEvents {
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(HOST);
 
 socket.on("connect", async () => {
-    const res = await getLocalStore("user");
+    const res = await getLocalStore("name");
     checKConnect();
     function checKConnect() {
         // 轮询直到拿到 name
         setTimeout(() => {
-            if (!res || res.name == undefined) {
+            if (!res) {
                 checKConnect();
             } else {
-                socket.emit("name:socketId", res.name);
+                socket.emit("name:socketId", res);
             }
         }, 1000);
     }

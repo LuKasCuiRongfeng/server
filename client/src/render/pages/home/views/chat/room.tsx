@@ -45,6 +45,7 @@ const Room = (props: Props) => {
     });
 
     const socketSyncCb = useMemoizedFn((msgs: Msg[], friend: string) => {
+        console.log(111, msgs, friend);
         const logs = [...(chatLog[friend] || [])];
         // 从后往前按照时间顺序插入，双指针法
         const arr: Msg[] = [];
@@ -75,6 +76,28 @@ const Room = (props: Props) => {
     useEffect(() => {
         socket.on("private-chat", socketCb);
 
+        socket.on("sync-chat", socketSyncCb);
+
+        return () => {
+            socket.off("private-chat");
+        };
+    }, []);
+
+    useEffect(() => {
+        if (members.length === 0) {
+            return;
+        }
+        const friend = members[0];
+        const chatHistory = chatLog[friend] || [];
+        if (chatHistory) {
+            setLines(chatHistory);
+        }
+    }, [members, chatLog]);
+
+    useEffect(() => {
+        if (members.length === 0) {
+            return;
+        }
         // 尝试去同步双方的聊天记录，因为可能对方在我
         // 没有在线的时候发了消息，我也可能在对方没
         // 在线的时候发了消息
@@ -95,29 +118,13 @@ const Room = (props: Props) => {
         }
         socket.emit("sync-chat", msgs, user.name, members[0]);
 
-        socket.on("sync-chat", socketSyncCb);
-
-        return () => {
-            socket.off("private-chat");
-        };
-    }, []);
-
-    useEffect(() => {
-        if (members.length === 0) {
-            return;
-        }
-        const friend = members[0];
-        const chatHistory = chatLog[friend] || [];
-        if (chatHistory) {
-            setLines(chatHistory);
-        }
         getUser(members[0]).then(res => {
             const {
                 data: { data },
             } = res;
             setFriendAvatar(data.avatar);
         });
-    }, [members, chatLog]);
+    }, [members]);
 
     useEffect(() => {
         if (roomBodyRef.current) {
