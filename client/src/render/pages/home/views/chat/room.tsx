@@ -1,6 +1,5 @@
 import socket from "@/core/socket";
 import { classnames, timeFormatter } from "@/core/utils";
-import { useAppSelector } from "@/store/hooks";
 import { Avatar, Input } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,19 +8,15 @@ import dayjs from "dayjs";
 import { Msg } from "@/types";
 import { getUser } from "../../api";
 import { HOST } from "@/core/const";
+import { useChatLog, useUser } from "@/hooks";
 
 type Props = {
     isPrivate: boolean;
     members: string[];
-    updateChatLog: (
-        friend: string,
-        msg?: Msg,
-        removeUnRead?: boolean
-    ) => Promise<void>;
 };
 
 const Room = (props: Props) => {
-    const { isPrivate, members, updateChatLog } = props;
+    const { isPrivate, members } = props;
     const [msg, setChatMsg] = useState("");
     const [lines, setLines] = useState<Msg[]>([]);
 
@@ -31,9 +26,8 @@ const Room = (props: Props) => {
 
     const { t } = useTranslation();
 
-    const user = useAppSelector(state => state.home.user);
-
-    const chatLog = useAppSelector(state => state.home.chatLog);
+    const { chatLog, updateChatLog } = useChatLog();
+    const { user } = useUser();
 
     const socketCb = useMemoizedFn(async (msg: Msg, friend: string) => {
         // 判断当前是否是正在聊天的对象
@@ -46,7 +40,7 @@ const Room = (props: Props) => {
             // 不是正在聊天的对象，在左边列表显示有聊天信息，设置为未读
             _msg.unread = true;
         }
-        await updateChatLog(friend, _msg);
+        updateChatLog({ user: user.name, friend, msg: _msg });
     });
 
     useEffect(() => {
@@ -135,7 +129,7 @@ const Room = (props: Props) => {
                 date: Date.now(),
                 msg,
             };
-            await updateChatLog(friend, _msg);
+            updateChatLog({ user: user.name, friend, msg: _msg });
 
             socket.emit("private-chat", _msg, user.name, members);
 

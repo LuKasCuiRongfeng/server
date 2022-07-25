@@ -1,24 +1,19 @@
 import socket from "@/core/socket";
 import { classnames } from "@/core/utils";
 import { addFriendRequest, getUser, permitFriend } from "@/pages/home/api";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { Avatar, Badge, Input, List, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { Msg, Stranger } from "@/types";
 import { HOST } from "@/core/const";
+import { useChatLog, useUser } from "@/hooks";
 
 type Props = {
     setPrivate: (isPrivate: boolean) => void;
     setMembers: (members: string[]) => void;
-    updateChatLog: (
-        friend: string,
-        msg?: Msg,
-        removeUnRead?: boolean
-    ) => Promise<void>;
 };
 
 const FriendsList = (props: Props) => {
-    const { setPrivate, setMembers, updateChatLog } = props;
+    const { setPrivate, setMembers } = props;
     const [friends, setFriends] = useState<string[]>([]);
     const [strangers, setStrangers] = useState<Stranger[]>([]);
     const [searchValue, setSearchValue] = useState("");
@@ -29,39 +24,36 @@ const FriendsList = (props: Props) => {
         Record<string, string>
     >({});
 
-    const user = useAppSelector(state => state.home.user);
-    const chatLog = useAppSelector(state => state.home.chatLog);
-
-    const dispatch = useAppDispatch();
-
-    // 查到朋友列表后会去更新 store 里的 user
-    // 以便其他地方可以使用
-    const updateUser = async () => {
-        const {
-            data: { data, status },
-        } = await getUser(user.name);
-        if (status === "success") {
-            dispatch({
-                type: "home/setUser",
-                payload: data,
-            });
-        }
-    };
+    const { chatLog, updateChatLog } = useChatLog();
+    const { user, getNewUser } = useUser();
 
     useEffect(() => {
-        updateUser();
+        getNewUser();
         socket.on("add-friend-request", async () => {
             // 收到添加好友的请求，陌生人列表+1
-            await updateUser();
+            getNewUser();
         });
         socket.on("permit-add-friend", async () => {
-            await updateUser();
+            getNewUser();
         });
         return () => {
             socket.off("add-friend-request");
             socket.off("permit-add-friend");
         };
     }, []);
+
+    useEffect(() => {
+        const friends = user.friends || [];
+        setFriends(friends);
+        const i = friends.length;
+        const arr: Promise<any>[] = [];
+        for (let i = 0; i < friends.length; i++) {
+            arr.push(getUser(friends[i]));
+        }
+        // Promise.all(arr).then(res => {
+
+        // })
+    }, [user.friends]);
 
     useEffect(() => {
         if (user) {
@@ -100,7 +92,12 @@ const FriendsList = (props: Props) => {
         // 设置 聊天框里的成员
         setMembers([friend]);
         // 并把 所有信息设为已读
-        await updateChatLog(friend, undefined, true);
+        updateChatLog({
+            user: user.name,
+            friend,
+            msg: null,
+            removeUnRead: true,
+        });
     };
 
     const onSearchFriend = async (searchName: string) => {
@@ -138,14 +135,18 @@ const FriendsList = (props: Props) => {
             message.error(error);
             return;
         }
-        // 更新一下用户
-        await updateUser();
+        // 拿到最新用户
+        getNewUser();
         //  更新一下chatlog
-        await updateChatLog(friend, {
-            name: friend,
-            msg: "我们已经是好友了, 开始聊天吧",
-            date: Date.now(),
-            unread: true,
+        updateChatLog({
+            user: name,
+            friend,
+            msg: {
+                name: friend,
+                msg: "我们已经是好友了, 开始聊天吧",
+                date: Date.now(),
+                unread: true,
+            },
         });
     };
 
