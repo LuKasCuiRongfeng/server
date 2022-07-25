@@ -45,17 +45,26 @@ const Room = (props: Props) => {
     });
 
     const socketSyncCb = useMemoizedFn((msgs: Msg[], friend: string) => {
-        console.log(111, msgs, friend);
         const logs = [...(chatLog[friend] || [])];
         // 从后往前按照时间顺序插入，双指针法
         const arr: Msg[] = [];
         let i = logs.length - 1,
             j = msgs.length - 1;
         while (i >= 0 && j >= 0) {
-            if (logs[i].date >= msgs[j].date) {
-                arr.unshift(logs[i--]);
+            if (
+                logs[i].date === msgs[j].date &&
+                logs[i].name === msgs[j].name
+            ) {
+                // 名字时间一样判定为同一条
+                arr.unshift(logs[i]);
+                i--;
+                j--;
             } else {
-                arr.unshift(msgs[j--]);
+                if (logs[i].date >= msgs[j].date) {
+                    arr.unshift(logs[i--]);
+                } else {
+                    arr.unshift(msgs[j--]);
+                }
             }
         }
         // 把剩余的加上
