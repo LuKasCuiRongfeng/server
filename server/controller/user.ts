@@ -85,7 +85,8 @@ export const addFriendRequest: MiddleWare = async (req, res) => {
             return;
         }
         // 去更新朋友的陌生人列表
-        if (!_friend.strangers.includes(me)) {
+        const find = _friend.strangers.find(el => el.name === me.name);
+        if (!find) {
             await usersConnection.updateOne(
                 {
                     name: friend,

@@ -11,7 +11,7 @@
         flex-direction: column;
         &-body {
             // flex: 1;
-            background: var(--gray-2);
+            background: var(--gray-6);
             padding: 10px;
             height: 500px;
             overflow: auto;
@@ -56,6 +56,15 @@
         box-shadow: var(--box-shadow);
         &-list {
             padding: 10px;
+            &-friends-title {
+                cursor: pointer;
+            }
+            &-search {
+                cursor: pointer;
+                & > strong {
+                    color: var(--lime-nature);
+                }
+            }
         }
     }
 }

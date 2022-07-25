@@ -1,7 +1,7 @@
 import socket from "@/core/socket";
 import { classnames } from "@/core/utils";
 import { addFriendRequest, getUser, permitFriend } from "@/pages/home/api";
-import { Avatar, Badge, Input, List, message } from "antd";
+import { Avatar, Badge, Button, Input, List, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { Msg, Stranger } from "@/types";
 import { HOST } from "@/core/const";
@@ -195,8 +195,11 @@ const FriendsList = (props: Props) => {
             // setFriends(filter);
 
             return (
-                <div onClick={() => onSearchFriend(searchValue)}>
-                    搜索 <span>{searchValue}</span>
+                <div
+                    className={classnames("chat-left-panel-list-search")}
+                    onClick={() => onSearchFriend(searchValue)}
+                >
+                    🔍搜索 <strong>{searchValue}</strong>
                 </div>
             );
         }
@@ -215,12 +218,14 @@ const FriendsList = (props: Props) => {
                     <List.Item
                         key={el.name}
                         actions={[
-                            <span
+                            <Button
+                                type="primary"
                                 key="addmit"
+                                size="small"
                                 onClick={() => onPermit(el.name)}
                             >
                                 同意
-                            </span>,
+                            </Button>,
                         ]}
                     >
                         <List.Item.Meta
@@ -269,9 +274,14 @@ const FriendsList = (props: Props) => {
                                 </Badge>
                             }
                             title={
-                                <span onClick={() => onOpenChatRoom(el)}>
+                                <div
+                                    className={classnames(
+                                        "chat-left-panel-list-friends-title"
+                                    )}
+                                    onClick={() => onOpenChatRoom(el)}
+                                >
                                     {el}
-                                </span>
+                                </div>
                             }
                             description={renderUnread(el, chatLog).msg}
                         />

@@ -48,13 +48,28 @@ const Room = (props: Props) => {
         const logs = [...(chatLog[friend] || [])];
         // 从后往前按照时间顺序插入，双指针法
         const arr: Msg[] = [];
-        for (
-            let i = msgs.length - 1, j = logs.length - 1;
-            i >= 0 && j >= 0;
-            i--, j--
-        ) {
-            console.log(1111);
+        let i = logs.length - 1,
+            j = msgs.length - 1;
+        while (i >= 0 && j >= 0) {
+            if (logs[i].date >= msgs[j].date) {
+                arr.unshift(logs[i--]);
+            } else {
+                arr.unshift(msgs[j--]);
+            }
         }
+        // 把剩余的加上
+        while (i >= 0) {
+            arr.unshift(logs[i--]);
+        }
+        while (j >= 0) {
+            arr.unshift(msgs[j--]);
+        }
+        updateChatLog({
+            user: user.name,
+            friend,
+            msgs: arr,
+            replace: true,
+        });
     });
 
     useEffect(() => {
