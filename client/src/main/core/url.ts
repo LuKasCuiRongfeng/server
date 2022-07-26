@@ -14,10 +14,6 @@ export class URL {
         if (_isDev === true) {
             return `http://localhost:12345/#/${key}`;
         }
-        return join(
-            `file://`,
-            __dirname,
-            `../../dist/render/index.html#${key}`
-        );
+        return join(`file://`, __dirname, `../render/index.html#/${key}`);
     }
 }

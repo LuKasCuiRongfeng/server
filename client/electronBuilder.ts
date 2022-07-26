@@ -5,30 +5,30 @@ const config: Configuration = {
     productName: "fullstack",
     copyright: "copyright@${author}",
     directories: {
-        output: "release/${productName} ${version}",
+        output: "release/${productName}${version}",
     },
-    files: ["dist/**"],
+    files: ["dist/**", "icon.ico"],
     electronDownload: {
         version: "19.0.7",
-        cache: "./electron-cache",
+        cache: "./cache",
     },
     mac: {
-        artifactName: "${productName} ${version}.${ext}",
+        artifactName: "${productName}${version}.${ext}",
         target: ["dmg"],
         icon: "icon.png",
     },
     win: {
         target: "nsis",
-        artifactName: "${productName} Setup ${version}.${ext}",
-        icon: "build/icon.ico",
+        artifactName: "${productName}Setup${version}.${ext}",
+        icon: "icon.ico",
     },
     nsis: {
         oneClick: false,
         perMachine: false,
         allowToChangeInstallationDirectory: true,
         deleteAppDataOnUninstall: true,
-        installerIcon: "build/icon.ico",
-        uninstallerIcon: "build/icon.ico",
+        installerIcon: "icon.ico",
+        uninstallerIcon: "icon.ico",
     },
 };
 
