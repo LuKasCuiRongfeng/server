@@ -1,15 +1,10 @@
-import { HOST } from "@/core/const";
 import { createWin, userExit } from "@/core/ipc";
 import { useAppSelector } from "@/store/hooks";
 import { Avatar, Dropdown, Menu, Modal } from "antd";
-import React, { useMemo } from "react";
+import React from "react";
 
 const UserSet = () => {
     const user = useAppSelector(state => state.home.user);
-
-    const avatar = useMemo(() => {
-        return `${HOST}/static/avatar/${user.avatar}`;
-    }, [user]);
 
     const menu = (
         <Menu
@@ -46,7 +41,7 @@ const UserSet = () => {
     return (
         <Dropdown overlay={menu}>
             <Avatar
-                src={avatar}
+                src={user.avatar}
                 style={{ backgroundColor: "var(--lime-nature)" }}
             >
                 {user.name?.slice(0, 3)}

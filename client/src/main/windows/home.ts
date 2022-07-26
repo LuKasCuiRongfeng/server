@@ -8,6 +8,7 @@ export async function createHomeWin(app: App) {
         key: "home",
         browserWindowConstructorOptions: {
             width: 1500,
+            height: 800,
             webPreferences: {
                 preload: resolve(__dirname, "preload/preload.js"),
             },

@@ -13,38 +13,41 @@
             // flex: 1;
             background: var(--gray-6);
             padding: 10px;
-            height: 500px;
-            overflow: auto;
             &-title {
                 text-align: center;
                 font-size: var(--l-font-size);
                 padding: 10px 0;
             }
-            &-line {
-                display: flex;
-                margin: 10px 0;
-                &-content {
-                    margin: 0 10px;
+            &-lines {
+                height: 500px;
+                overflow: auto;
+                // scroll-behavior: smooth;
+                &-line {
                     display: flex;
-                    padding: 4px;
-                    border-radius: var(--l-border-radius);
-                    flex-direction: column;
-                    background: var(--gray-1);
-                    &-time {
-                        font-size: var(--s-font-size);
-                        color: var(--gray-7);
-                    }
-                    &-msg {
-                        font-size: var(--m-font-size);
+                    margin: 10px 0;
+                    &-content {
+                        margin: 0 10px;
+                        display: flex;
+                        padding: 4px;
+                        border-radius: var(--l-border-radius);
+                        flex-direction: column;
+                        background: var(--gray-1);
+                        &-time {
+                            font-size: var(--s-font-size);
+                            color: var(--gray-7);
+                        }
+                        &-msg {
+                            font-size: var(--m-font-size);
+                        }
                     }
                 }
-            }
-            &-line-right {
-                flex-direction: row-reverse;
-                .@{class-prefix}chat-right-panel-body-line-content {
-                    background: var(--lime-nature);
-                    span {
-                        text-align: right;
+                &-line-right {
+                    flex-direction: row-reverse;
+                    .@{class-prefix}chat-right-panel-body-lines-line-content {
+                        background: var(--lime-nature);
+                        span {
+                            text-align: right;
+                        }
                     }
                 }
             }

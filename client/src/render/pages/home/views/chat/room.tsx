@@ -7,7 +7,6 @@ import { useMemoizedFn } from "ahooks";
 import dayjs from "dayjs";
 import { Msg } from "@/types";
 import { getUser } from "../../api";
-import { HOST } from "@/core/const";
 import { useChatLog, useUser } from "@/hooks";
 
 type Props = {
@@ -15,12 +14,18 @@ type Props = {
     members: string[];
 };
 
+/** 每次加载 20 条对话 */
+const PAGESIZE = 20;
+let loadMore = false;
+
 const Room = (props: Props) => {
     const { isPrivate, members } = props;
     const [msg, setChatMsg] = useState("");
     const [lines, setLines] = useState<Msg[]>([]);
 
     const [friendAvatar, setFriendAvatar] = useState("");
+
+    const [pageCount, setPageCount] = useState(1);
 
     const roomBodyRef = useRef<HTMLDivElement>();
 
@@ -37,6 +42,7 @@ const Room = (props: Props) => {
         if (current != null) {
             // 是正在聊天的对象
             _msg.unread = false;
+            loadMore = false;
         } else {
             // 不是正在聊天的对象，在左边列表显示有聊天信息，设置为未读
             _msg.unread = true;
@@ -46,11 +52,16 @@ const Room = (props: Props) => {
 
     const socketSyncCb = useMemoizedFn((msgs: Msg[], friend: string) => {
         // 回一个消息同步
-        socket.emit("sync-chat-reply", sliceMsgs(100), user.name, members[0]);
+        socket.emit(
+            "sync-chat-reply",
+            sliceLastMsgs(100),
+            user.name,
+            members[0]
+        );
 
         // 从后往前按照时间顺序插入，双指针法
         const logs = chatLog[friend] || [];
-        const arr = insertMsgs(logs, msgs);
+        const arr = syncMsgs(logs, msgs);
         updateChatLog({
             user: user.name,
             friend,
@@ -62,7 +73,7 @@ const Room = (props: Props) => {
     const socketSyncReplyCb = useMemoizedFn((msgs: Msg[], friend: string) => {
         // 从后往前按照时间顺序插入，双指针法
         const logs = chatLog[friend] || [];
-        const arr = insertMsgs(logs, msgs);
+        const arr = syncMsgs(logs, msgs);
         updateChatLog({
             user: user.name,
             friend,
@@ -91,17 +102,19 @@ const Room = (props: Props) => {
         const friend = members[0];
         const chatHistory = chatLog[friend] || [];
         if (chatHistory) {
-            setLines(chatHistory);
+            setLines(chatHistory.slice(-PAGESIZE * pageCount));
         }
-    }, [members, chatLog]);
+    }, [members, chatLog, pageCount]);
 
     useEffect(() => {
         if (members.length === 0) {
             return;
         }
+        setPageCount(1);
+        loadMore = false;
 
         // 尝试同步聊天记录
-        const msgs = sliceMsgs(100);
+        const msgs = sliceLastMsgs(100);
         socket.emit("sync-chat", msgs, user.name, members[0]);
 
         getUser(members[0]).then(res => {
@@ -113,17 +126,14 @@ const Room = (props: Props) => {
     }, [members]);
 
     useEffect(() => {
-        if (roomBodyRef.current) {
+        if (roomBodyRef.current && loadMore === false) {
+            // 只有来新消息和发消息的时候滚动条才沉底，滚动加载更多不沉底
             roomBodyRef.current.scrollTop = roomBodyRef.current.scrollHeight;
         }
     }, [lines]);
 
-    // 尝试去同步双方的聊天记录，因为可能对方在我
-    // 没有在线的时候发了消息，我也可能在对方没
-    // 在线的时候发了消息
-    // 考虑到性能，最多同步最近的我说的100条记录
-    // 其余的不再同步
-    const sliceMsgs = (length: number) => {
+    // 提取最近的一些记录
+    const sliceLastMsgs = (length: number) => {
         const msgs: Msg[] = [];
         const logs = chatLog[members[0]] || [];
         for (let i = logs.length - 1; i >= 0; i--) {
@@ -140,8 +150,8 @@ const Room = (props: Props) => {
         return msgs;
     };
 
-    /** 按照时间顺序重新组装 */
-    const insertMsgs = (logs1: Msg[], logs2: Msg[]) => {
+    /** 按照时间顺序重新同步消息 */
+    const syncMsgs = (logs1: Msg[], logs2: Msg[]) => {
         // 从后往前按照时间顺序插入，双指针法
         const arr: Msg[] = [];
         let i = logs1.length - 1,
@@ -179,7 +189,7 @@ const Room = (props: Props) => {
         const avatar = line.name === user.name ? user.avatar : friendAvatar;
         return {
             name: name.slice(0, 3),
-            avatar: `${HOST}/static/avatar/${avatar}`,
+            avatar,
         };
     };
 
@@ -187,30 +197,35 @@ const Room = (props: Props) => {
         return (
             <div
                 key={line.date.toString()}
-                className={classnames("chat-right-panel-body-line", {
-                    "chat-right-panel-body-line-right": line.name === user.name,
+                className={classnames("chat-right-panel-body-lines-line", {
+                    "chat-right-panel-body-lines-line-right":
+                        line.name === user.name,
                 })}
             >
                 <div
-                    className={classnames("chat-right-panel-body-line-avtator")}
+                    className={classnames(
+                        "chat-right-panel-body-lines-line-avtator"
+                    )}
                 >
                     <Avatar size={50} src={renderAvatar(line).avatar}>
                         {renderAvatar(line).name}
                     </Avatar>
                 </div>
                 <div
-                    className={classnames("chat-right-panel-body-line-content")}
+                    className={classnames(
+                        "chat-right-panel-body-lines-line-content"
+                    )}
                 >
                     <span
                         className={classnames(
-                            "chat-right-panel-body-line-content-time"
+                            "chat-right-panel-body-lines-line-content-time"
                         )}
                     >
                         {timeFormatter({ dayStart: dayjs(line.date) })}
                     </span>
                     <span
                         className={classnames(
-                            "chat-right-panel-body-line-content-msg"
+                            "chat-right-panel-body-lines-line-content-msg"
                         )}
                     >
                         {line.msg}
@@ -234,6 +249,14 @@ const Room = (props: Props) => {
             socket.emit("private-chat", _msg, user.name, members);
 
             setChatMsg("");
+            loadMore = false;
+        }
+    };
+
+    const onLoadMore = (e: React.UIEvent) => {
+        if (e.currentTarget.scrollTop <= 20) {
+            loadMore = true;
+            setPageCount(pageCount + 1);
         }
     };
     return (
@@ -255,10 +278,7 @@ const Room = (props: Props) => {
                             }
                         />
                     </div>
-                    <div
-                        ref={roomBodyRef}
-                        className={classnames("chat-right-panel-body")}
-                    >
+                    <div className={classnames("chat-right-panel-body")}>
                         <div
                             className={classnames(
                                 "chat-right-panel-body-title"
@@ -266,7 +286,15 @@ const Room = (props: Props) => {
                         >
                             {members.join(", ")}
                         </div>
-                        {lines.map(line => renderMsgLine(line))}
+                        <div
+                            ref={roomBodyRef}
+                            onScroll={e => onLoadMore(e)}
+                            className={classnames(
+                                "chat-right-panel-body-lines"
+                            )}
+                        >
+                            {lines.map(line => renderMsgLine(line))}
+                        </div>
                     </div>
                 </>
             )}

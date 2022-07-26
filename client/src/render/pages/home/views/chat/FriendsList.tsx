@@ -4,7 +4,6 @@ import { addFriendRequest, getUser, permitFriend } from "@/pages/home/api";
 import { Avatar, Badge, Button, Input, List, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { Msg, Stranger } from "@/types";
-import { HOST } from "@/core/const";
 import { useChatLog, useUser } from "@/hooks";
 
 type Props = {
@@ -230,11 +229,7 @@ const FriendsList = (props: Props) => {
                     >
                         <List.Item.Meta
                             avatar={
-                                <Avatar
-                                    src={`${HOST}/static/avatar/${
-                                        strangersAvatars[el.name]
-                                    }`}
-                                >
+                                <Avatar src={strangersAvatars[el.name]}>
                                     {el.name.slice(0, 3)}
                                 </Avatar>
                             }
@@ -266,9 +261,7 @@ const FriendsList = (props: Props) => {
                                     size="small"
                                     count={renderUnread(el, chatLog).count}
                                 >
-                                    <Avatar
-                                        src={`${HOST}/static/avatar/${friendsAvatars[el]}`}
-                                    >
+                                    <Avatar src={friendsAvatars[el]}>
                                         {el.slice(0, 3)}
                                     </Avatar>
                                 </Badge>

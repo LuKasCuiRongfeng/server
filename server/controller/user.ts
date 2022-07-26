@@ -2,7 +2,7 @@ import { usersConnection } from "../model/FullStack";
 import { MiddleWare, Stranger, User } from "../types";
 import busboy from "busboy";
 import { basename, resolve } from "path";
-import { createWriteStream } from "fs";
+import { createReadStream, createWriteStream } from "fs";
 import { findSockets } from "../app";
 
 export const login: MiddleWare = async (req, res) => {
@@ -59,15 +59,46 @@ export const getUser: MiddleWare = async (req, res) => {
 
         if (user != null) {
             const { name, nickName, friends, strangers, avatar } = user;
-            res.send({
-                status: "success",
-                error: "",
-                data: { name, nickName, friends, strangers, avatar },
-            });
-            return;
-        }
 
-        res.send({ status: "failed", error: "用户不存在" });
+            // avatar 转 base64
+            const chunks = [];
+            const rs = createReadStream(
+                resolve(__dirname, `../public/avatar/${avatar}`)
+            );
+            rs.on("data", chunk => chunks.push(chunk))
+                .on("error", err => {
+                    res.send({
+                        status: "success",
+                        error: "",
+                        data: {
+                            name,
+                            nickName,
+                            friends,
+                            strangers,
+                            avatar: "",
+                        },
+                    });
+                })
+                .on("end", () => {
+                    const base64 =
+                        "data:image/png;base64," +
+                        Buffer.concat(chunks).toString("base64");
+
+                    res.send({
+                        status: "success",
+                        error: "",
+                        data: {
+                            name,
+                            nickName,
+                            friends,
+                            strangers,
+                            avatar: base64,
+                        },
+                    });
+                });
+        } else {
+            res.send({ status: "failed", error: "用户不存在" });
+        }
     } catch (err) {
         res.send({ status: "failed", error: err.error });
     }
@@ -166,23 +197,23 @@ export const getAvatar: MiddleWare = async (req, res) => {
         }
 
         // 转base64
-        // const chunks = [];
-        // const rs = createReadStream(
-        //     resolve(__dirname, `../public/avatar/${user.avatar}`)
-        // );
-        // rs.on("data", chunk => chunks.push(chunk))
-        //     .on("error", err => {
-        //         res.send({ status: "success", error: err });
-        //     })
-        //     .on("end", () => {
-        //         const base64 =
-        //             "data:image/png;base64," +
-        //             Buffer.concat(chunks).toString("base64");
+        const chunks = [];
+        const rs = createReadStream(
+            resolve(__dirname, `../public/avatar/${user.avatar}`)
+        );
+        rs.on("data", chunk => chunks.push(chunk))
+            .on("error", err => {
+                res.send({ status: "success", error: err });
+            })
+            .on("end", () => {
+                const base64 =
+                    "data:image/png;base64," +
+                    Buffer.concat(chunks).toString("base64");
 
-        //         res.send({ status: "success", error: "", data: base64 });
-        //     });
+                res.send({ status: "success", error: "", data: base64 });
+            });
         // 直接返回静态托管的地址
-        res.send({ status: "success", data: user.avatar });
+        // res.send({ status: "success", data: user.avatar });
     } catch (err) {
         res.send({ status: "failed", error: err.error });
     }
