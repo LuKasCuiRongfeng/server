@@ -12,7 +12,7 @@ const config: Configuration = {
         filename: "[name].js",
         clean: true,
         pathinfo: false,
-        publicPath: "/",
+        publicPath: "./",
     },
     devtool: "source-map",
     optimization: {

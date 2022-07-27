@@ -1,6 +1,7 @@
 import { join } from "path";
 import App from "../app";
 import { isDev } from "./utils";
+import { format } from "url";
 
 /** URL管理类 */
 export class URL {
@@ -14,6 +15,13 @@ export class URL {
         if (_isDev === true) {
             return `http://localhost:12345/#/${key}`;
         }
-        return join(`file://`, __dirname, `../render/index.html#/${key}`);
+        const url = format({
+            protocol: "file",
+            slashes: true,
+            pathname: join(__dirname, `../render/index.html`),
+            hash: `/${key}`,
+        });
+        return url;
+        // return join(`file://`, __dirname, `../render/index.html#/${key}`);
     }
 }

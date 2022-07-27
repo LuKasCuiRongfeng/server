@@ -17,7 +17,7 @@ const config: Configuration = {
         filename: "js/[name].[contenthash].js",
         clean: true,
         pathinfo: false,
-        // publicPath: "/",
+        publicPath: "./",
     },
     optimization: {
         moduleIds: "deterministic",
