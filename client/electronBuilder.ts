@@ -2,7 +2,7 @@ import { Configuration, Platform, build } from "electron-builder";
 
 const config: Configuration = {
     appId: "",
-    productName: "fullstack",
+    productName: "FreeChat",
     copyright: "copyright@${author}",
     directories: {
         output: "release/${productName}${version}",
@@ -19,7 +19,7 @@ const config: Configuration = {
     },
     win: {
         target: "nsis",
-        artifactName: "${productName}Setup${version}.${ext}",
+        artifactName: "${productName}${version}-setup.${ext}",
         icon: "icon.ico",
     },
     nsis: {

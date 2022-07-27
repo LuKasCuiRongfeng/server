@@ -8,6 +8,16 @@ import { findSockets } from "../app";
 export const login: MiddleWare = async (req, res) => {
     try {
         const body = req.body as User;
+        // 判断一下是否在其他地方已经登录了
+        const sockets = findSockets(body.name);
+        if (sockets.length > 1) {
+            // 你的账号正在被登录
+            res.send({
+                status: "failed",
+                error: "你的账号已在其他地方登录, 已被占用",
+            });
+            return;
+        }
         const user = await usersConnection.findOne<User>({
             name: body.name,
             password: body.password,
