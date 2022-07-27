@@ -2,6 +2,7 @@
 
 .@{class-prefix}chat {
     display: flex;
+    height: calc(100vh - 150px);
     min-height: 500px;
     padding: 10px;
     &-right-panel {
@@ -9,48 +10,49 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        &-body {
-            // flex: 1;
-            background: var(--gray-6);
-            padding: 10px;
-            &-title {
-                text-align: center;
-                font-size: var(--l-font-size);
-                padding: 10px 0;
-            }
-            &-lines {
-                height: 500px;
-                overflow: auto;
-                // scroll-behavior: smooth;
-                &-line {
+        background: var(--gray-3);
+        &-title {
+            // flex: 0 0 30px;
+            text-align: center;
+            font-size: var(--l-font-size);
+            padding: 10px 0;
+        }
+        &-lines {
+            overflow: auto;
+            flex: 1;
+            // scroll-behavior: smooth;
+            &-line {
+                display: flex;
+                margin: 10px 0;
+                &-content {
+                    margin: 0 10px;
                     display: flex;
-                    margin: 10px 0;
-                    &-content {
-                        margin: 0 10px;
-                        display: flex;
-                        padding: 4px;
-                        border-radius: var(--l-border-radius);
-                        flex-direction: column;
-                        background: var(--gray-1);
-                        &-time {
-                            font-size: var(--s-font-size);
-                            color: var(--gray-7);
-                        }
-                        &-msg {
-                            font-size: var(--m-font-size);
-                        }
+                    padding: 4px;
+                    border-radius: var(--l-border-radius);
+                    flex-direction: column;
+                    background: var(--gray-1);
+                    &-time {
+                        font-size: var(--s-font-size);
+                        color: var(--gray-7);
                     }
-                }
-                &-line-right {
-                    flex-direction: row-reverse;
-                    .@{class-prefix}chat-right-panel-body-lines-line-content {
-                        background: var(--lime-nature);
-                        span {
-                            text-align: right;
-                        }
+                    &-msg {
+                        font-size: var(--m-font-size);
                     }
                 }
             }
+            &-line-right {
+                flex-direction: row-reverse;
+                .@{class-prefix}chat-right-panel-lines-line-content {
+                    background: var(--lime-nature);
+                    span {
+                        text-align: right;
+                    }
+                }
+            }
+        }
+        &-send {
+            flex: 0 0 200px;
+            background: var(--gray-1);
         }
     }
     &-left-panel {

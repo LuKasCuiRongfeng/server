@@ -36,6 +36,8 @@ const Room = (props: Props) => {
     const { user } = useUser();
 
     const socketCb = useMemoizedFn(async (msg: Msg, friend: string) => {
+        // 收到消息发出 beep 声音
+        window.shell.beep();
         // 判断当前是否是正在聊天的对象
         const _msg = { ...msg };
         const current = members.find(el => el === friend);
@@ -197,14 +199,14 @@ const Room = (props: Props) => {
         return (
             <div
                 key={line.date.toString()}
-                className={classnames("chat-right-panel-body-lines-line", {
-                    "chat-right-panel-body-lines-line-right":
+                className={classnames("chat-right-panel-lines-line", {
+                    "chat-right-panel-lines-line-right":
                         line.name === user.name,
                 })}
             >
                 <div
                     className={classnames(
-                        "chat-right-panel-body-lines-line-avtator"
+                        "chat-right-panel-lines-line-avtator"
                     )}
                 >
                     <Avatar size={50} src={renderAvatar(line).avatar}>
@@ -213,19 +215,19 @@ const Room = (props: Props) => {
                 </div>
                 <div
                     className={classnames(
-                        "chat-right-panel-body-lines-line-content"
+                        "chat-right-panel-lines-line-content"
                     )}
                 >
                     <span
                         className={classnames(
-                            "chat-right-panel-body-lines-line-content-time"
+                            "chat-right-panel-lines-line-content-time"
                         )}
                     >
                         {timeFormatter({ dayStart: dayjs(line.date) })}
                     </span>
                     <span
                         className={classnames(
-                            "chat-right-panel-body-lines-line-content-msg"
+                            "chat-right-panel-lines-line-content-msg"
                         )}
                     >
                         {line.msg}
@@ -237,12 +239,12 @@ const Room = (props: Props) => {
 
     const sendChatMsg = async (key: string) => {
         const friend = members[0];
-        if (key.toLowerCase() === "enter") {
+        if (key.toLowerCase() === "enter" && msg.trim() !== "") {
             // 更新本地和redux
             const _msg: Msg = {
                 name: user.name,
                 date: Date.now(),
-                msg,
+                msg: msg.trim(),
             };
             updateChatLog({ user: user.name, friend, msgs: [_msg] });
 
@@ -265,6 +267,16 @@ const Room = (props: Props) => {
                 "什么也没有, 点击列表开始聊天吧"
             ) : (
                 <>
+                    <div className={classnames("chat-right-panel-title")}>
+                        {members.join(", ")}
+                    </div>
+                    <div
+                        ref={roomBodyRef}
+                        onScroll={e => onLoadMore(e)}
+                        className={classnames("chat-right-panel-lines")}
+                    >
+                        {lines.map(line => renderMsgLine(line))}
+                    </div>
                     <div className={classnames("chat-right-panel-send")}>
                         <Input
                             value={msg}
@@ -277,24 +289,6 @@ const Room = (props: Props) => {
                                 </span>
                             }
                         />
-                    </div>
-                    <div className={classnames("chat-right-panel-body")}>
-                        <div
-                            className={classnames(
-                                "chat-right-panel-body-title"
-                            )}
-                        >
-                            {members.join(", ")}
-                        </div>
-                        <div
-                            ref={roomBodyRef}
-                            onScroll={e => onLoadMore(e)}
-                            className={classnames(
-                                "chat-right-panel-body-lines"
-                            )}
-                        >
-                            {lines.map(line => renderMsgLine(line))}
-                        </div>
                     </div>
                 </>
             )}

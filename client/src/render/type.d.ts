@@ -12,9 +12,19 @@ export interface IpcRenderer {
     ) => any;
 }
 
+export interface Shell {
+    openExternal: (
+        url: string,
+        options?: { activate?: boolean; workingDirectory?: string }
+    ) => Promise<void>;
+    openPath: (path: string) => Promise<string>;
+    beep: () => void;
+}
+
 declare global {
     interface Window {
         /** 渲染进程 */
         ipcRenderer: IpcRenderer;
+        shell: Shell;
     }
 }
