@@ -1,7 +1,22 @@
 import socket from "@/core/socket";
 import { classnames } from "@/core/utils";
-import { addFriendRequest, getUser, permitFriend } from "@/pages/home/api";
-import { Avatar, Badge, Button, Input, List, message } from "antd";
+import {
+    addFriendRequest,
+    deleteFriend,
+    getUser,
+    permitFriend,
+} from "@/pages/home/api";
+import {
+    Avatar,
+    Badge,
+    Button,
+    Dropdown,
+    Input,
+    List,
+    Menu,
+    message,
+    Modal,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { Msg, Stranger } from "@/types";
 import { useChatLog, useUser } from "@/hooks";
@@ -254,7 +269,17 @@ const FriendsList = (props: Props) => {
             <List
                 dataSource={friends}
                 renderItem={el => (
-                    <List.Item key={el}>
+                    <List.Item
+                        key={el}
+                        actions={[
+                            <Dropdown
+                                key="more"
+                                overlay={renderFriendActionMenu(el)}
+                            >
+                                <a onClick={e => e.preventDefault()}>更多</a>
+                            </Dropdown>,
+                        ]}
+                    >
                         <List.Item.Meta
                             avatar={
                                 <Badge
@@ -281,6 +306,42 @@ const FriendsList = (props: Props) => {
                     </List.Item>
                 )}
             />
+        );
+    };
+
+    const renderFriendActionMenu = (friend: string) => {
+        return (
+            <Menu
+                items={[
+                    {
+                        key: "delete",
+                        label: "删除好友",
+                        danger: true,
+                    },
+                ]}
+                onClick={({ key }) => {
+                    if (key === "delete") {
+                        Modal.confirm({
+                            title: `确定要删除好友 ${friend} 吗? 聊天记录将同时被删除掉, 且不可撤回`,
+                            type: "warn",
+                            onOk: async () => {
+                                const {
+                                    data: { error },
+                                } = await deleteFriend({
+                                    me: user.name,
+                                    friend,
+                                });
+                                if (error) {
+                                    message.error(error);
+                                    return;
+                                }
+                                await getNewUser();
+                                setMembers([]);
+                            },
+                        });
+                    }
+                }}
+            ></Menu>
         );
     };
 

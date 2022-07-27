@@ -1,6 +1,7 @@
 import express from "express";
 import {
     addFriendRequest,
+    deleteFriend,
     getAvatar,
     getUser,
     login,
@@ -25,6 +26,8 @@ export function userRouter() {
     router.get("/getavatar", getAvatar);
 
     router.post("/uploadavatar", uploadAvatar);
+
+    router.post("/deletefriend", deleteFriend);
 
     return router;
 }

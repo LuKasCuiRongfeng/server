@@ -30,3 +30,11 @@ export function getAvatar(name: string) {
         params: { name },
     });
 }
+
+export function deleteFriend(data: { me: string; friend: string }) {
+    return request({
+        url: "/user/deletefriend",
+        method: "post",
+        data,
+    });
+}

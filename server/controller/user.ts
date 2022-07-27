@@ -287,3 +287,43 @@ export const uploadAvatar: MiddleWare = async (req, res) => {
         res.send({ status: "failed", error: err.error });
     }
 };
+
+export const deleteFriend: MiddleWare = async (req, res) => {
+    try {
+        const body = req.body as { me: string; friend: string };
+        const me = await usersConnection.findOne<User>({ name: body.me });
+        const friend = await usersConnection.findOne<User>({
+            name: body.friend,
+        });
+
+        if (me == null || friend == null) {
+            res.send({ status: "failed", error: "用户不存在存在" });
+            return;
+        }
+        const filters1 = friend.friends.filter(el => el !== body.me);
+        const filters2 = me.friends.filter(el => el !== body.friend);
+        await usersConnection.updateOne(
+            {
+                name: body.friend,
+            },
+            {
+                $set: {
+                    friends: [...filters1],
+                },
+            }
+        );
+        await usersConnection.updateOne(
+            {
+                name: body.me,
+            },
+            {
+                $set: {
+                    friends: [...filters2],
+                },
+            }
+        );
+        res.send({ status: "success", error: "" });
+    } catch (err) {
+        res.send({ status: "failed", error: err.error });
+    }
+};
