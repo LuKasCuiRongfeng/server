@@ -3,6 +3,7 @@ import { Routes, HashRouter, Route } from "react-router-dom";
 import { homeRoute } from "./pages/home/route";
 import { LoginRoute } from "./pages/login/route";
 import { UserSetRoute } from "./pages/userset/route";
+import { WhatsNewsRoute } from "./pages/whatsnew/route";
 
 export interface CustomRoute {
     label?: string;
@@ -57,6 +58,7 @@ const Router: React.FC<Record<string, any>> = () => {
                 {generateSingleNestRoute(homeRoute)}
                 {generateSingleNestRoute(LoginRoute)}
                 {generateSingleNestRoute(UserSetRoute)}
+                {generateSingleNestRoute(WhatsNewsRoute)}
             </Routes>
         </HashRouter>
     );

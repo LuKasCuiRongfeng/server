@@ -4,6 +4,16 @@ import App from "../app";
 import { createHomeWin } from "./home";
 
 export async function createLoginWin(app: App) {
+    setTimeout(() => {
+        app.windowManager.createWin({
+            key: "whatsnew",
+            browserWindowConstructorOptions: {
+                width: 600,
+                height: 350,
+            },
+        });
+    }, 1000);
+
     const user = app.store.get("name");
     const startDate = app.store.get("startDate") as number;
     if (user != undefined && Date.now() - startDate < MAX_AGE) {
