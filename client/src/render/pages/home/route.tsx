@@ -7,6 +7,7 @@ import Home from ".";
 import Recommend from "./Recommend";
 import { CustomRoute } from "@/router";
 import Chat from "./views/chat";
+import { Iconfont } from "@/components";
 
 // 每个页面维护自己的routes
 export const homeRoute: CustomRoute = {
@@ -22,6 +23,7 @@ export const homeRoute: CustomRoute = {
         {
             path: "pe",
             label: "体育",
+            icon: <Iconfont type="tiyu" />,
             element: <PE />,
             children: [
                 {
@@ -40,6 +42,7 @@ export const homeRoute: CustomRoute = {
         {
             path: "epe",
             label: "电子竞技",
+            icon: <Iconfont type="game1" />,
             element: <EPE />,
             children: [
                 { path: "lol", label: "英雄联盟", element: <LOL /> },
@@ -50,6 +53,7 @@ export const homeRoute: CustomRoute = {
         {
             path: "music",
             label: "音乐",
+            icon: <Iconfont type="Music" />,
             element: <Music />,
             children: [
                 { path: "pop", label: "流行音乐", element: <Pop /> },
@@ -63,6 +67,7 @@ export const homeRoute: CustomRoute = {
         },
         {
             path: "chat",
+            icon: <Iconfont color="green" type="chat" />,
             label: "聊天",
             element: <Chat />,
         },

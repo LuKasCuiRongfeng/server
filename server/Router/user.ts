@@ -2,12 +2,12 @@ import express from "express";
 import {
     addFriendRequest,
     deleteFriend,
-    getAvatar,
     getUser,
     login,
     permitFriend,
     register,
-    uploadAvatar,
+    updateUser,
+    uploadFile,
 } from "../controller/user";
 
 export function userRouter() {
@@ -19,13 +19,13 @@ export function userRouter() {
 
     router.get("/getuser", getUser);
 
+    router.post("/updateuser", updateUser);
+
     router.post("/addfriendrequest", addFriendRequest);
 
     router.post("/permitfriend", permitFriend);
 
-    router.get("/getavatar", getAvatar);
-
-    router.post("/uploadavatar", uploadAvatar);
+    router.post("/uploadfile", uploadFile);
 
     router.post("/deletefriend", deleteFriend);
 

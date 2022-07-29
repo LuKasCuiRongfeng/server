@@ -8,6 +8,14 @@ export function getUser(name: string) {
     });
 }
 
+export function updateUser(user: User) {
+    return request({
+        url: "/user/updateuser",
+        method: "post",
+        data: user,
+    });
+}
+
 export function addFriendRequest(data: { me: Stranger; friend: string }) {
     return request({
         url: "/user/addfriendrequest",
@@ -21,13 +29,6 @@ export function permitFriend(data: { me: string; friend: string }) {
         url: "/user/permitfriend",
         method: "post",
         data,
-    });
-}
-
-export function getAvatar(name: string) {
-    return request<{ data: string }>({
-        url: "/user/getavatar",
-        params: { name },
     });
 }
 

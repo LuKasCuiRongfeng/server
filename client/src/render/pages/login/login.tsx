@@ -1,24 +1,32 @@
 import { windowLogin } from "@/core/ipc";
 import { Button, Form, Input, message } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { userLogin } from "./api";
 
 const Login_login: React.FC<Record<string, any>> = () => {
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
     const login = async () => {
-        const values = await form.validateFields();
-        const {
-            data: { status, data, error },
-        } = await userLogin(values);
-        if (status === "success") {
-            message.success("登录成功");
-            await windowLogin(data);
-        } else {
-            message.error(error);
+        try {
+            setLoading(true);
+            const values = await form.validateFields();
+            const {
+                data: { status, data, error },
+            } = await userLogin(values);
+            if (status === "success") {
+                message.success("登录成功");
+                await windowLogin(data);
+            } else {
+                message.error(error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
     return (
@@ -40,7 +48,11 @@ const Login_login: React.FC<Record<string, any>> = () => {
                 </Form.Item>
             </Form>
             <div style={{ textAlign: "center" }}>
-                <Button onClick={() => login()} type="primary">
+                <Button
+                    loading={loading}
+                    onClick={() => login()}
+                    type="primary"
+                >
                     登录
                 </Button>
                 <Button onClick={() => navigate("/login/register")} type="link">

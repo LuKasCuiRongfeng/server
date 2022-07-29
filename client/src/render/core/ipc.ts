@@ -55,8 +55,12 @@ export async function crossWinSendMsg(data: CrossWinData) {
     window.ipcRenderer.send(IpcChannel.SEND_MSG, data);
 }
 
-/** 上传文件 */
-export async function uploadFile(options: FileUpload): Promise<CommonResponse> {
+/** 上传文件, 采取的是 stream 的形式上传，可以用于上传大文件 */
+export async function uploadFile(options: FileUpload): Promise<
+    CommonResponse & {
+        data: { newFilename: string; originFilename: string };
+    }
+> {
     return window.ipcRenderer.invoke(IpcChannel.FILE_UPLOAD, options);
 }
 
@@ -65,4 +69,13 @@ export async function openDialog(
     filters: FileFilter
 ): Promise<OpenDialogReturn> {
     return window.ipcRenderer.invoke(IpcChannel.OPEN_DIALOG, filters);
+}
+
+/** 把小文件转base64，文件不要太大 */
+export async function fileToBase64(options: {
+    filepath: string;
+    type: string;
+    maxSize?: number;
+}): Promise<CommonResponse & { data: string }> {
+    return window.ipcRenderer.invoke(IpcChannel.FILE_TO_BASE64, options);
 }

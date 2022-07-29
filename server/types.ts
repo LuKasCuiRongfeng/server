@@ -29,7 +29,10 @@ export interface ServerToClientEvents {
     "add-friend-request": (me: Stranger) => void;
     "private-chat": (msg: Msg, me: string) => void;
     "permit-add-friend": (me: string) => void;
-    "file-upload-progress": (length: number) => void;
+    "file-upload-progress": (
+        newFilename: string,
+        currentLength: number
+    ) => void;
     "sync-chat": (msgs: Msg[], me: string) => void;
     "sync-chat-reply": (msgs: Msg[], me: string) => void;
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ElectronWindow } from "@/components";
+import { ElectronWindow, Iconfont } from "@/components";
 import { classnames } from "@/core/utils";
 import { Menu, MenuProps } from "antd";
 import "./index.less";

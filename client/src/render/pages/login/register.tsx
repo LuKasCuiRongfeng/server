@@ -1,29 +1,37 @@
 import { User } from "@/types";
 import { Button, Form, Input, message } from "antd";
 import { omit } from "lodash-es";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { userReg } from "./api";
 
 const Login_reg: React.FC<Record<string, any>> = () => {
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
     const register = async () => {
-        const values = await form.validateFields([
-            "name",
-            "password",
-            "surepassword",
-        ]);
-        const {
-            data: { status, error },
-        } = await userReg(omit(values, ["surepassword"]) as User);
-        if (status === "success") {
-            message.success("注册成功");
-            navigate("/login");
-        } else {
-            message.error(error);
+        try {
+            setLoading(true);
+            const values = await form.validateFields([
+                "name",
+                "password",
+                "surepassword",
+            ]);
+            const {
+                data: { status, error },
+            } = await userReg(omit(values, ["surepassword"]) as User);
+            if (status === "success") {
+                message.success("注册成功");
+                navigate("/login");
+            } else {
+                message.error(error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
     return (
@@ -59,6 +67,10 @@ const Login_reg: React.FC<Record<string, any>> = () => {
                                 );
                             },
                         },
+                        {
+                            required: true,
+                            message: "请确认密码",
+                        },
                     ]}
                     name="surepassword"
                 >
@@ -66,7 +78,11 @@ const Login_reg: React.FC<Record<string, any>> = () => {
                 </Form.Item>
             </Form>
             <div style={{ textAlign: "center" }}>
-                <Button onClick={() => register()} type="primary">
+                <Button
+                    loading={loading}
+                    onClick={() => register()}
+                    type="primary"
+                >
                     注册
                 </Button>
                 <Button onClick={() => navigate("/login")} type="link">

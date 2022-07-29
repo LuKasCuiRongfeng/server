@@ -3,7 +3,7 @@ import { dialog, ipcMain } from "electron";
 import Store from "electron-store";
 import { statSync } from "fs";
 import { URL } from "./core/url";
-import { uploadFile } from "./core/utils";
+import { toBase64, uploadFile } from "./core/utils";
 import {
     CrossWinData,
     WinConstructorOptions,
@@ -121,15 +121,10 @@ export default class App {
         // 文件上传
         ipcMain.handle(IpcChannel.FILE_UPLOAD, async (e, args: FileUpload) => {
             try {
-                const {
-                    name,
-                    url,
-                    filepath,
-                    maxSize = 100 * 1024 * 1024,
-                } = args;
+                const { name, url, filepath, maxSize } = args;
                 const filesize = statSync(filepath).size;
 
-                if (filesize > maxSize) {
+                if (maxSize && filesize > maxSize) {
                     return { error: "文件大小超过限制" };
                 }
                 return uploadFile({ name, url, filepath });
@@ -163,5 +158,21 @@ export default class App {
                 console.error(error);
             }
         });
+
+        ipcMain.handle(
+            IpcChannel.FILE_TO_BASE64,
+            async (e, { filepath, maxSize = 1 * 1024 * 1024, type }) => {
+                try {
+                    const filesize = statSync(filepath).size;
+                    if (filesize > maxSize) {
+                        return { error: "文件大小超过限制" };
+                    }
+                    const base64 = await toBase64({ filepath, type });
+                    return { error: "", data: base64 };
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        );
     }
 }

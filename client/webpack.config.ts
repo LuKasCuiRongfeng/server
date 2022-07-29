@@ -6,6 +6,7 @@ import {
 } from "webpack";
 import { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
 import HtmlWebpackPlugin from "html-webpack-plugin";
+import CopyWebpackPlugin from "copy-webpack-plugin";
 interface Configuration extends WebpackConfiguration {
     devServer?: WebpackDevServerConfiguration;
 }
@@ -77,6 +78,9 @@ const config: Configuration = {
         new ProgressPlugin(),
         new DefinePlugin({
             WEBPACK_GLOBAL: {},
+        }),
+        new CopyWebpackPlugin({
+            patterns: [{ from: "src/render/iconfont", to: "iconfont" }],
         }),
     ],
 };

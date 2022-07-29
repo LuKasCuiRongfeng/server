@@ -39,5 +39,5 @@ export type FileFilter = { name: string; extensions: string[] }[];
 export type OpenDialogReturn = {
     canceled: boolean;
     filepath: string;
-    filesize: string;
+    filesize: number;
 };

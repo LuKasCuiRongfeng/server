@@ -13,6 +13,7 @@ export enum IpcChannel {
     OPEN_DIALOG = "OPEN_DIALOG",
     FILE_UPLOAD = "FILE_UPLOAD",
     FILE_STAT = "FILE_STAT",
+    FILE_TO_BASE64 = "FILE_TO_BASE64",
 }
 
 export enum ControlId {

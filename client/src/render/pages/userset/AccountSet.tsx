@@ -4,7 +4,7 @@ import { classnames } from "@/core/utils";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { Avatar, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { getAvatar } from "../home/api";
+import { getUser, updateUser } from "../home/api";
 
 const AccountSet = () => {
     const [mask, setMask] = useState(false);
@@ -13,53 +13,58 @@ const AccountSet = () => {
 
     const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        socket.on("file-upload-progress", length => {
-            console.log(length);
-        });
-        return () => {
-            socket.off("file-upload-progress");
-        };
-    }, []);
-
     const onClickAvatar = async () => {
-        const res = await openDialog([
+        const { canceled, filepath, filesize } = await openDialog([
             { name: "Images", extensions: ["png", "jpg"] },
         ]);
-        if (res.canceled) {
+        if (canceled) {
             return;
         }
-        const { filepath } = res;
 
-        const _res = await uploadFile({
+        const { error: fileError, data: fileReturn } = await uploadFile({
             filepath,
             name: user.name,
-            url: "/user/uploadavatar",
+            url: "/user/uploadfile",
             maxSize: 100 * 1024,
         });
 
-        if (_res.error) {
-            message.error(_res.error);
+        if (fileError) {
+            message.error(fileError);
             return;
         }
         const {
-            data: { status, data },
-        } = await getAvatar(user.name);
+            data: { error },
+        } = await updateUser({
+            name: user.name,
+            avatar: fileReturn.newFilename,
+        });
 
-        if (status === "success") {
-            dispatch({
-                type: "userset/setUser",
-                payload: { ...user, avatar: data },
-            });
-            // 刷新首页的头像
-            await crossWinSendMsg({
-                key: "home",
-                data: {
-                    type: "home/setUser",
-                    payload: { ...user, avatar: data },
-                },
-            });
+        if (error) {
+            message.error(error);
+            return;
         }
+
+        const {
+            data: { error: userError, data: userData },
+        } = await getUser(user.name);
+
+        if (userError) {
+            message.error(error);
+            return;
+        }
+
+        dispatch({
+            type: "userset/setUser",
+            payload: userData,
+        });
+        // 刷新首页的头像
+        await crossWinSendMsg({
+            key: "home",
+            data: {
+                type: "home/setUser",
+                payload: userData,
+            },
+        });
     };
     return (
         <div className={classnames("user-set-content-set")}>

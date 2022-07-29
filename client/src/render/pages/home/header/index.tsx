@@ -1,11 +1,10 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import { classnames } from "@/core/utils";
 import "./style.less";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Dropdown, Menu } from "antd";
 import { homeRoute } from "../route";
 import { generateAntdMenuItems } from "@/router";
-import { useAppSelector } from "@/store/hooks";
 import UserSet from "./user";
 import Lang from "./lang";
 import { useTranslation } from "react-i18next";
@@ -39,14 +38,17 @@ const Header: React.FC<Record<string, any>> = () => {
                                     />
                                 }
                             >
-                                <div>{t(d.label)}</div>
+                                <div>
+                                    {d.icon} <span>{t(d.label)}</span>
+                                </div>
                             </Dropdown>
                         ) : (
                             <div
                                 onClick={() => navigate(`/home/${d.path}`)}
                                 style={{ cursor: "pointer" }}
                             >
-                                {t(d.label)}
+                                {d.icon}
+                                <span>{t(d.label)}</span>
                             </div>
                         )}
                     </div>

@@ -1,6 +1,6 @@
 import socket from "@/core/socket";
 import { classnames, timeFormatter } from "@/core/utils";
-import { Avatar, Input } from "antd";
+import { Avatar, Input, message } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMemoizedFn } from "ahooks";
@@ -8,6 +8,9 @@ import dayjs from "dayjs";
 import { Msg } from "@/types";
 import { getUser } from "../../api";
 import { useChatLog, useUser } from "@/hooks";
+import { Iconfont } from "@/components";
+import { fileToBase64, openDialog, uploadFile } from "@/core/ipc";
+import { HOST } from "@/core/const";
 
 type Props = {
     isPrivate: boolean;
@@ -26,6 +29,10 @@ const Room = (props: Props) => {
     const [friendAvatar, setFriendAvatar] = useState("");
 
     const [pageCount, setPageCount] = useState(1);
+
+    const [uploadProgress, setUploadProgress] = useState<
+        Map<string, [total: number, current: number]>
+    >(new Map());
 
     const roomBodyRef = useRef<HTMLDivElement>();
 
@@ -84,12 +91,24 @@ const Room = (props: Props) => {
         });
     });
 
+    const socketUploadProgressCb = useMemoizedFn(
+        (newFilename: string, currentLength: number) => {
+            const _map = uploadProgress;
+            const arr = _map.get(newFilename);
+            const total = arr ? arr[0] : 1;
+            _map.set(newFilename, [total, currentLength]);
+            setUploadProgress(_map);
+        }
+    );
+
     useEffect(() => {
         socket.on("private-chat", socketCb);
 
         socket.on("sync-chat", socketSyncCb);
 
         socket.on("sync-chat-reply", socketSyncReplyCb);
+
+        socket.on("file-upload-progress", socketUploadProgressCb);
 
         return () => {
             socket.off("private-chat");
@@ -230,11 +249,29 @@ const Room = (props: Props) => {
                             "chat-right-panel-lines-line-content-msg"
                         )}
                     >
-                        {line.msg}
+                        {renderMedia(line.msg)}
                     </span>
                 </div>
             </div>
         );
+    };
+
+    const renderMedia = (msg: string) => {
+        if (msg.includes(`mediatype=`)) {
+            // 包含了这一段，代表去后台取资源
+            const type = msg.split(`mediatype=`)[1].split("&hash=")[0];
+            const filename = msg.split(`mediatype=`)[1].split("&hash=")[1];
+            const src = `${HOST}/static/usercache/${filename}`;
+            if (type == "image") {
+                return <img width={150} src={src} alt="" />;
+            } else if (type === "video") {
+                return <video controls width={250} src={src}></video>;
+            } else {
+                return <div>文件错误</div>;
+            }
+        } else {
+            return <div>{msg}</div>;
+        }
     };
 
     const sendChatMsg = async (key: string) => {
@@ -253,6 +290,49 @@ const Room = (props: Props) => {
             setChatMsg("");
             loadMore = false;
         }
+    };
+
+    const sendMediaMsg = async (
+        type: "image" | "video" | "audio",
+        extensions: string[]
+    ) => {
+        const { canceled, filepath, filesize } = await openDialog([
+            { name: type, extensions },
+        ]);
+        if (canceled) {
+            return;
+        }
+        const friend = members[0];
+        let msg = "";
+        // 媒体文件由于可能太大，会导致 socket 断开连接发生错误，
+        // 这里采用一种方式是把 文件传到 托管服务器，并生产一个hash值
+        // 代替文件名，双方通过这个hash 值去 托管服务器拿到对应的资源
+        // 而本地保存hash值就可以了
+        const { error, data } = await uploadFile({
+            name: user.name,
+            filepath,
+            url: "/user/uploadfile",
+        });
+        if (error) {
+            msg = error;
+        } else {
+            const _map = uploadProgress;
+            _map.set(data.newFilename, [filesize, 0]);
+            setUploadProgress(_map);
+            msg = `mediatype=${type}&hash=` + data.newFilename;
+        }
+
+        // 更新本地和redux
+        const _msg: Msg = {
+            name: user.name,
+            date: Date.now(),
+            msg,
+        };
+        updateChatLog({ user: user.name, friend, msgs: [_msg] });
+
+        socket.emit("private-chat", _msg, user.name, members);
+
+        loadMore = false;
     };
 
     const onLoadMore = (e: React.UIEvent) => {
@@ -289,6 +369,34 @@ const Room = (props: Props) => {
                                 </span>
                             }
                         />
+                        <div
+                            className={classnames(
+                                "chat-right-panel-send-functions"
+                            )}
+                        >
+                            <Iconfont
+                                className={classnames(
+                                    "chat-right-panel-send-functions-function"
+                                )}
+                                onClick={() =>
+                                    sendMediaMsg("image", ["png", "jpg", "gif"])
+                                }
+                                title="选择图片"
+                                fontSize={26}
+                                color="var(--lime-nature)"
+                                type="image"
+                            />
+                            <Iconfont
+                                className={classnames(
+                                    "chat-right-panel-send-functions-function"
+                                )}
+                                onClick={() => sendMediaMsg("video", ["*"])}
+                                title="选择视频"
+                                fontSize={26}
+                                color="var(--lime-nature)"
+                                type="video"
+                            />
+                        </div>
                     </div>
                 </>
             )}

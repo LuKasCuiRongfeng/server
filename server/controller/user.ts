@@ -1,9 +1,10 @@
 import { usersConnection } from "../model/FullStack";
 import { MiddleWare, Stranger, User } from "../types";
 import busboy from "busboy";
-import { basename, resolve } from "path";
+import { basename, extname, resolve } from "path";
 import { createReadStream, createWriteStream } from "fs";
 import { findSockets } from "../app";
+import { createHmac } from "crypto";
 
 export const login: MiddleWare = async (req, res) => {
     try {
@@ -73,7 +74,7 @@ export const getUser: MiddleWare = async (req, res) => {
             // avatar 转 base64
             const chunks = [];
             const rs = createReadStream(
-                resolve(__dirname, `../public/avatar/${avatar}`)
+                resolve(__dirname, `../public/usercache/${avatar}`)
             );
             rs.on("data", chunk => chunks.push(chunk))
                 .on("error", err => {
@@ -106,6 +107,36 @@ export const getUser: MiddleWare = async (req, res) => {
                         },
                     });
                 });
+        } else {
+            res.send({ status: "failed", error: "用户不存在" });
+        }
+    } catch (err) {
+        res.send({ status: "failed", error: err.error });
+    }
+};
+
+export const updateUser: MiddleWare = async (req, res) => {
+    try {
+        const { name, nickName, friends, strangers, avatar, password } =
+            req.body as User;
+        const user = await usersConnection.findOne<User>({ name });
+
+        if (user != null) {
+            await usersConnection.updateOne(
+                {
+                    name,
+                },
+                {
+                    $set: {
+                        nickName: nickName ?? user.nickName,
+                        friends: friends ?? user.friends,
+                        strangers: strangers ?? user.strangers,
+                        avatar: avatar ?? user.avatar,
+                        password: password ?? user.password,
+                    },
+                }
+            );
+            res.send({ status: "success", error: "" });
         } else {
             res.send({ status: "failed", error: "用户不存在" });
         }
@@ -196,90 +227,61 @@ export const permitFriend: MiddleWare = async (req, res) => {
     }
 };
 
-export const getAvatar: MiddleWare = async (req, res) => {
-    try {
-        const qs = req.query;
-        const user = await usersConnection.findOne<User>({ name: qs.name });
-
-        if (user == null) {
-            res.send({ status: "failed", error: "用户不存在" });
-            return;
-        }
-
-        // 转base64
-        const chunks = [];
-        const rs = createReadStream(
-            resolve(__dirname, `../public/avatar/${user.avatar}`)
-        );
-        rs.on("data", chunk => chunks.push(chunk))
-            .on("error", err => {
-                res.send({ status: "success", error: err });
-            })
-            .on("end", () => {
-                const base64 =
-                    "data:image/png;base64," +
-                    Buffer.concat(chunks).toString("base64");
-
-                res.send({ status: "success", error: "", data: base64 });
-            });
-        // 直接返回静态托管的地址
-        // res.send({ status: "success", data: user.avatar });
-    } catch (err) {
-        res.send({ status: "failed", error: err.error });
-    }
-};
-
-export const uploadAvatar: MiddleWare = async (req, res) => {
+// 上传文件的标准模型是根据文件的上传时间+文件名+上传人生成一个
+// 特有的哈希值作为新的文件名，并把新的文件名返回给前端，其他
+// 的事就不要做了
+export const uploadFile: MiddleWare = async (req, res) => {
     try {
         const _busboy = busboy({ headers: req.headers });
-        let filesize = 0,
-            username = "",
-            fileName = "";
+        let username = "",
+            newFilename = "",
+            originFilename = "";
 
         _busboy.on("field", (field, val, info) => {
-            if (field === "filesize") {
-                filesize = +val;
-            } else if (field === "username") {
+            if (field === "username") {
                 username = val;
             }
         });
 
         _busboy.on("file", (name, file, { filename }) => {
-            fileName = filename;
+            const ext = extname(filename);
+            // 原始文件名 + 时间生成一个新的 hash 文件名
+            newFilename =
+                createHmac("sha256", filename + Date.now()).digest("hex") + ext;
             const chunks = [];
-            file.pipe(
-                createWriteStream(
-                    resolve(__dirname, "../public/avatar", fileName)
-                )
+            // 通过 socket 发送上传进度
+            // 由于在这个地方拿不到 username，
+            // 又需要 username去找 socket，我操
+            // 只能采取分割形式，需要前端把上传的文件名
+            // 改成 username = filename，比如 crf?猴子.jpg
+            const sockets = findSockets(filename.split("?")[0]);
+            originFilename = filename.split("?")[1];
+            const writeStream = createWriteStream(
+                resolve(__dirname, "../public/usercache", newFilename)
             );
+
+            file.pipe(writeStream);
+
             file.on("data", data => {
-                // 通过 socket 发送上传进度
+                console.log(data.length);
                 chunks.push(data);
-                const sockets = findSockets(basename(filename, ".png"));
                 sockets.forEach(el => {
                     el.emit(
                         "file-upload-progress",
+                        newFilename,
                         Buffer.concat(chunks).length
                     );
                 });
-            }).on("error", err => console.error(err));
+            });
         });
 
         _busboy.on("close", async () => {
-            // 更新数据库里的用户头像信息
-
-            await usersConnection.updateOne(
-                {
-                    name: username,
-                },
-                {
-                    $set: {
-                        avatar: fileName,
-                    },
-                }
-            );
-
-            res.send({ status: "success", error: "" });
+            // 把生成的 hash 新文件发回来
+            res.send({
+                status: "success",
+                error: "",
+                data: { newFilename, originFilename },
+            });
         });
 
         req.pipe(_busboy);

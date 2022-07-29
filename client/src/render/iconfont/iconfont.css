@@ -1,0 +1,337 @@
+@font-face {
+  font-family: "iconfont"; /* Project id  */
+  src: url('iconfont.ttf?t=1658977805777') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-upload:before {
+  content: "\e664";
+}
+
+.icon-anquanbaozhang:before {
+  content: "\e628";
+}
+
+.icon-chat:before {
+  content: "\e601";
+}
+
+.icon-phone:before {
+  content: "\e604";
+}
+
+.icon-loading:before {
+  content: "\e6a6";
+}
+
+.icon-yinpinaudio47:before {
+  content: "\e9dd";
+}
+
+.icon-chat1:before {
+  content: "\e8be";
+}
+
+.icon-icon_account:before {
+  content: "\e60a";
+}
+
+.icon-video:before {
+  content: "\e7c8";
+}
+
+.icon-wechat:before {
+  content: "\e61d";
+}
+
+.icon-phone1:before {
+  content: "\e64e";
+}
+
+.icon-wechat1:before {
+  content: "\e658";
+}
+
+.icon-phone2:before {
+  content: "\e672";
+}
+
+.icon-icons-:before {
+  content: "\e679";
+}
+
+.icon-game:before {
+  content: "\e625";
+}
+
+.icon-github:before {
+  content: "\e691";
+}
+
+.icon-upload1:before {
+  content: "\e646";
+}
+
+.icon-Exit:before {
+  content: "\e6bd";
+}
+
+.icon-upload2:before {
+  content: "\e6fe";
+}
+
+.icon-audio:before {
+  content: "\e800";
+}
+
+.icon-set:before {
+  content: "\e615";
+}
+
+.icon-GitHub:before {
+  content: "\ea09";
+}
+
+.icon-github1:before {
+  content: "\e50c";
+}
+
+.icon-icon_zhanghao:before {
+  content: "\eb8a";
+}
+
+.icon-file-fill:before {
+  content: "\e66f";
+}
+
+.icon-filesearch:before {
+  content: "\e7b4";
+}
+
+.icon-file-zip:before {
+  content: "\e7bb";
+}
+
+.icon-folder-add:before {
+  content: "\e7d1";
+}
+
+.icon-image:before {
+  content: "\e7de";
+}
+
+.icon-fullscreen-exit:before {
+  content: "\e7ec";
+}
+
+.icon-folder:before {
+  content: "\e63f";
+}
+
+.icon-image-fill:before {
+  content: "\e860";
+}
+
+.icon-setting-fill:before {
+  content: "\e871";
+}
+
+.icon-login_mima:before {
+  content: "\e64b";
+}
+
+.icon-game1:before {
+  content: "\e701";
+}
+
+.icon-video1:before {
+  content: "\e80c";
+}
+
+.icon-search:before {
+  content: "\e6b9";
+}
+
+.icon-password:before {
+  content: "\e714";
+}
+
+.icon-tuichu-x:before {
+  content: "\e622";
+}
+
+.icon-security:before {
+  content: "\e657";
+}
+
+.icon-phone-fill:before {
+  content: "\e7ca";
+}
+
+.icon-search-minus:before {
+  content: "\e82c";
+}
+
+.icon-search-plus:before {
+  content: "\e82d";
+}
+
+.icon-video2:before {
+  content: "\e666";
+}
+
+.icon-video3:before {
+  content: "\e667";
+}
+
+.icon-audio1:before {
+  content: "\e678";
+}
+
+.icon-Music:before {
+  content: "\e63e";
+}
+
+.icon-audiostatic:before {
+  content: "\e8e8";
+}
+
+.icon-Upload:before {
+  content: "\eaba";
+}
+
+.icon-avatar:before {
+  content: "\e673";
+}
+
+.icon-set1:before {
+  content: "\e73b";
+}
+
+.icon-search1:before {
+  content: "\e60b";
+}
+
+.icon-musiclist:before {
+  content: "\e69c";
+}
+
+.icon-wechat-:before {
+  content: "\e621";
+}
+
+.icon-SEARCH:before {
+  content: "\e816";
+}
+
+.icon-chat2:before {
+  content: "\e91a";
+}
+
+.icon--game:before {
+  content: "\e609";
+}
+
+.icon-download:before {
+  content: "\e661";
+}
+
+.icon-audio2:before {
+  content: "\e546";
+}
+
+.icon-set2:before {
+  content: "\e62b";
+}
+
+.icon-Login:before {
+  content: "\e758";
+}
+
+.icon-password1:before {
+  content: "\e612";
+}
+
+.icon-music:before {
+  content: "\e654";
+}
+
+.icon-download1:before {
+  content: "\e7a4";
+}
+
+.icon-exit:before {
+  content: "\e7a5";
+}
+
+.icon-chat3:before {
+  content: "\e7c3";
+}
+
+.icon-phone3:before {
+  content: "\e787";
+}
+
+.icon-video4:before {
+  content: "\e791";
+}
+
+.icon-tiyu:before {
+  content: "\e6c7";
+}
+
+.icon-games:before {
+  content: "\e67f";
+}
+
+.icon-github2:before {
+  content: "\ea0b";
+}
+
+.icon-zhanghaoguanli:before {
+  content: "\e72a";
+}
+
+.icon-download2:before {
+  content: "\e624";
+}
+
+.icon-ic_security:before {
+  content: "\e603";
+}
+
+.icon-loading1:before {
+  content: "\e68b";
+}
+
+.icon-ic-upload:before {
+  content: "\e7a6";
+}
+
+.icon-file:before {
+  content: "\e671";
+}
+
+.icon-GitHub1:before {
+  content: "\e8c6";
+}
+
+.icon-Loading:before {
+  content: "\e696";
+}
+
+.icon-folder1:before {
+  content: "\e71a";
+}
+
+.icon-zhanghao:before {
+  content: "\e605";
+}
+
